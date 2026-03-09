@@ -19,6 +19,7 @@ import {
   Volume2,
   Check,
 } from "lucide-react";
+import { GhostTypingText } from "@/components/ghost-typing-text";
 
 const REALTIME_QUERIES = [
   "האם מול ארון החשמל הראשי מונח סולם פתוח או עגלת ציוד שחוסמים גישה?",
@@ -47,15 +48,17 @@ const USE_CASES = [
 const TEAM_MEMBERS = [
   {
     name: "יבגני וישנבסקי",
-    role: "שותף ויו״ר דירקטוריון",
-    bio: "יזם ואיש טכנולוגיה בעל ניסיון רב בהקמת חברות ופיתוח מערכות מתקדמות.",
+    role: "יו״ר דירקטוריון",
+    bio: "יזם, מהנדס ואיש עסקים בעל ניסיון רב בהקמה והובלה של חברות חדשנות, בפיתוח מערכות טכנולוגיות מתקדמות ובהובלת יוזמות פורצות דרך בתחומי האנרגיה הירוקה והטכנולוגיה המתקדמת. בנוסף, משקיע יחיד בסבב ההשקעה CEED R2 בחברת Ghost.",
+    ghostTyping: true,
     image: "/eivgeni_portrait.jpeg",
     imagePosition: "center 45%",
   },
   {
     name: "עומר אלפסי",
     role: "שותף מייסד ומנכ״ל Ghost Israel",
-    bio: "יזם וטכנולוג אשר מוביל את חזון החברה לפיתוח מערכות בינה מלאכותית מתקדמות לניתוח וידאו בזמן אמת ולהפיכת מערכות מצלמות מורכבות לנגישות ופשוטות לשימוש.",
+    bio: "יזם ואיש עסקים בתחום המימון, בוגר היחידה המטכ״לית ללוחמה בטרור כימי וביולוגי, גדוד אב״כ 76. לשעבר סמנכ״ל פיתוח עסקי בגופים עסקיים מובילים ובתעשייה הביטחונית בישראל. בעל ניסיון בהובלת פרויקטים ביטחוניים מורכבים ורגישים.",
+    ghostTyping: true,
     image: "/omer_portrait.png",
     imagePosition: "center 22%",
   },
@@ -94,12 +97,20 @@ export default function Home() {
             <a href="#msg3" className="hover:text-neutral-950 transition-colors">בדיקות</a>
             <a href="#msg4" className="hover:text-neutral-950 transition-colors">התראות</a>
             <Link href="/about" className="hover:text-neutral-950 transition-colors">הסיפור שלנו</Link>
+            <Link href="/careers" className="hover:text-neutral-950 transition-colors">קריירה</Link>
           </div>
-          <Link href="/demo">
-            <Button className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-9 px-5 text-xs font-bold">
-              קבע הדגמה
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/partners/login">
+              <Button variant="outline" className="border-neutral-300 text-neutral-600 hover:bg-neutral-50 rounded-full h-9 px-4 text-xs">
+                כניסה למפיצים
+              </Button>
+            </Link>
+            <Link href="/demo">
+              <Button className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-9 px-5 text-xs font-bold">
+                קבע הדגמה
+              </Button>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -118,7 +129,7 @@ export default function Home() {
                 <span className="text-neutral-400">בשפה טבעית.</span>
               </h1>
               <p className="text-lg text-neutral-500 leading-relaxed max-w-2xl mx-auto mb-10">
-                Ghost הוא שכבת הפעלה חדשה למצלמות ארגוניות. תארו במילים מה חשוב לכם לבדוק, לאכוף או להתריע עליו — Ghost יעשה את השאר. בלי רשימת יכולות סגורה מראש. בלי אימון מודלים. בלי להחליף ציוד.
+                Ghost הוא מערכת הפעלה חדשה למצלמות אבטחה. תארו במילים מה חשוב לכם לבדוק, לאכוף או להתריע עליו — Ghost יעשה את השאר. בלי רשימת יכולות סגורה מראש. בלי אימון מודלים. בלי להחליף ציוד.
               </p>
               <div className="flex gap-3 justify-center">
                 <Link href="/demo">
@@ -350,7 +361,15 @@ export default function Home() {
                   <div className="p-6">
                     <h3 className="text-lg font-bold mb-1">{member.name}</h3>
                     <p className="text-sm text-neutral-400 font-bold mb-3">{member.role}</p>
-                    <p className="text-sm text-neutral-500 leading-relaxed">{member.bio}</p>
+                    {member.ghostTyping ? (
+                      <GhostTypingText
+                        text={member.bio}
+                        className="text-sm text-neutral-500 leading-relaxed"
+                        charDelay={40}
+                      />
+                    ) : (
+                      <p className="text-sm text-neutral-500 leading-relaxed">{member.bio}</p>
+                    )}
                   </div>
                 </div>
               ))}
