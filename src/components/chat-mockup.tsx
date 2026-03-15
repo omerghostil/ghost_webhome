@@ -3,25 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Camera, Send, ChevronDown, ChevronLeft, Users } from "lucide-react";
-
-const TREE = [
-  {
-    name: "קבוצת מפעלים IL",
-    open: true,
-    children: [
-      {
-        name: "מפעל ברלב",
-        open: true,
-        children: [
-          { name: "משרדים", count: 3, active: true },
-          { name: "ייצור", count: 5 },
-          { name: "חניון", count: 2 },
-        ],
-      },
-      { name: "מפעל חיפה", count: 8 },
-    ],
-  },
-];
+import { useTranslation } from "@/lib/i18n";
 
 type AnimPhase = "idle" | "typing-user" | "user-sent" | "typing-ghost" | "done";
 
@@ -30,6 +12,13 @@ export function ChatMockup() {
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const hasTriggered = useRef(false);
+  const { t } = useTranslation();
+
+  const sidebarGroups = [
+    { name: t("components.chatMockup.offices"), count: 3, active: true },
+    { name: t("components.chatMockup.production"), count: 5 },
+    { name: t("components.chatMockup.parking"), count: 2 },
+  ];
 
   const scrollToBottom = useCallback(() => {
     if (messagesRef.current) {
@@ -88,20 +77,20 @@ export function ChatMockup() {
         {/* Sidebar */}
         <div className="w-52 border-l border-neutral-100 bg-neutral-50/50 p-3 hidden lg:block overflow-y-auto">
           <div className="text-[10px] uppercase tracking-[0.15em] text-neutral-400 font-bold mb-3 px-2">
-            ניווט מצלמות
+            {t("components.chatMockup.cameraNavigation")}
           </div>
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-bold text-neutral-700">
               <ChevronDown className="w-3 h-3 text-neutral-400" />
-              <span>{TREE[0].name}</span>
+              <span>{t("components.chatMockup.factoryGroup")}</span>
             </div>
             <div className="pr-4 space-y-0.5">
               <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-bold text-neutral-600">
                 <ChevronDown className="w-3 h-3 text-neutral-400" />
-                <span>מפעל ברלב</span>
+                <span>{t("components.chatMockup.factoryBarlev")}</span>
               </div>
               <div className="pr-4 space-y-0.5">
-                {TREE[0].children![0].children!.map((group, i) => (
+                {sidebarGroups.map((group, i) => (
                   <div
                     key={i}
                     className={`flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition-colors ${
@@ -120,18 +109,18 @@ export function ChatMockup() {
               </div>
               <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-neutral-400">
                 <ChevronLeft className="w-3 h-3" />
-                <span>מפעל חיפה</span>
+                <span>{t("components.chatMockup.factoryHaifa")}</span>
                 <span className="text-[10px] text-neutral-300 mr-auto">8</span>
               </div>
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-neutral-100">
             <div className="text-[10px] uppercase tracking-[0.15em] text-neutral-400 font-bold mb-2 px-2">
-              צ&apos;אטים קבוצתיים
+              {t("components.chatMockup.groupChats")}
             </div>
             <div className="px-2.5 py-1.5 text-xs text-neutral-400 flex items-center gap-1.5">
               <Users className="w-3 h-3" />
-              כל מצלמות ברלב
+              {t("components.chatMockup.allBarlevCameras")}
             </div>
           </div>
         </div>
@@ -140,7 +129,7 @@ export function ChatMockup() {
         <div className="flex-1 flex flex-col">
           <div className="border-b border-neutral-100">
             <div className="px-5 pt-2 text-[10px] text-neutral-300 font-mono">
-              קבוצת מפעלים IL &rsaquo; מפעל ברלב &rsaquo; משרדים &rsaquo; לובי ראשי
+              {t("components.chatMockup.breadcrumb")}
             </div>
             <div className="px-5 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -148,31 +137,28 @@ export function ChatMockup() {
                   <Camera className="w-3.5 h-3.5 text-white" />
                 </div>
                 <div>
-                  <div className="font-bold text-xs text-neutral-950">מצלמת לובי ראשי</div>
-                  <div className="text-[10px] text-neutral-400">Ghost פעיל</div>
+                  <div className="font-bold text-xs text-neutral-950">{t("components.chatMockup.mainLobbyCamera")}</div>
+                  <div className="text-[10px] text-neutral-400">{t("components.chatMockup.ghostActive")}</div>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-neutral-950 animate-pulse-slow" />
-                <span className="text-[10px] text-neutral-400">LIVE</span>
+                <span className="text-[10px] text-neutral-400">{t("components.chatMockup.live")}</span>
               </div>
             </div>
           </div>
 
           {/* Messages */}
           <div ref={messagesRef} className="flex-1 p-5 space-y-4 overflow-y-auto">
-            {/* History message 1 */}
-            <UserMsg text="מה הסטטוס של הלובי עכשיו?" time="14:18" />
-            <GhostMsg text="הלובי פנוי. שני אנשים יושבים באזור ההמתנה. תאורה תקינה, אין מפגעים נראים לעין." time="14:18" />
+            <UserMsg text={t("components.chatMockup.historyQ1")} time="14:18" initial={t("components.chatMockup.userInitial")} />
+            <GhostMsg text={t("components.chatMockup.historyA1")} time="14:18" />
 
-            {/* History message 2 */}
-            <UserMsg text="האם כל שלטי הבטיחות באזור הכניסה נראים ותקינים?" time="14:19" />
-            <GhostMsg text="כן. שלט יציאת חירום מואר, שלט מטפה תקין, שילוט כיוון מדרגות נראה. לא זוהו שלטים חסרים או פגומים." time="14:20" />
+            <UserMsg text={t("components.chatMockup.historyQ2")} time="14:19" initial={t("components.chatMockup.userInitial")} />
+            <GhostMsg text={t("components.chatMockup.historyA2")} time="14:20" />
 
-            {/* Typing user indicator */}
             {phase === "typing-user" && (
               <div className="flex gap-2.5 animate-fade-in-up">
-                <div className="w-6 h-6 rounded-full bg-neutral-100 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-neutral-400">א</div>
+                <div className="w-6 h-6 rounded-full bg-neutral-100 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-neutral-400">{t("components.chatMockup.userInitial")}</div>
                 <div className="bg-neutral-50 border border-neutral-100 rounded-xl rounded-tr-none px-4 py-3 flex gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 animate-bounce" style={{ animationDelay: "0ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -181,14 +167,12 @@ export function ChatMockup() {
               </div>
             )}
 
-            {/* Current user question */}
             {showUserQuestion && (
               <div className="animate-fade-in-up">
-                <UserMsg text="האם מול דלת יציאת החירום בלובי מונחת עגלת ציוד או חפץ שחוסם את המעבר?" time="14:22" />
+                <UserMsg text={t("components.chatMockup.currentQuestion")} time="14:22" initial={t("components.chatMockup.userInitial")} />
               </div>
             )}
 
-            {/* Ghost typing indicator */}
             {showGhostTyping && (
               <div className="flex gap-2.5 animate-fade-in-up">
                 <div className="w-6 h-6 rounded-full bg-neutral-950 flex-shrink-0 overflow-hidden">
@@ -202,7 +186,6 @@ export function ChatMockup() {
               </div>
             )}
 
-            {/* Ghost response with image */}
             {showGhostResponse && (
               <div className="flex gap-2.5 animate-fade-in-up">
                 <div className="w-6 h-6 rounded-full bg-neutral-950 flex-shrink-0 overflow-hidden">
@@ -211,10 +194,10 @@ export function ChatMockup() {
                 <div>
                   <div className="bg-neutral-950 text-white rounded-xl rounded-tr-none px-3.5 py-2.5 max-w-sm">
                     <p className="text-xs leading-relaxed mb-2">
-                      כן. מול דלת יציאת חירום B2 מונחת עגלת שינוע מתכת ועליה שני ארגזי קרטון פתוחים, חוסמים כ-60% מרוחב הפתח.
+                      {t("components.chatMockup.currentAnswer")}
                     </p>
                     <div className="rounded-md overflow-hidden">
-                      <Image src="/exitdoorblocked.jpg" alt="צילום מצלמה - דלת חירום חסומה" width={356} height={200} className="w-full h-auto object-cover" />
+                      <Image src="/exitdoorblocked.jpg" alt={t("components.chatMockup.imageAlt")} width={356} height={200} className="w-full h-auto object-cover" />
                     </div>
                   </div>
                   <div className="text-[9px] text-neutral-300 mt-1 px-1">14:22</div>
@@ -227,7 +210,7 @@ export function ChatMockup() {
           <div className="p-3 border-t border-neutral-100">
             <div className="flex items-center gap-2.5 bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2">
               <span className="flex-1 text-xs text-neutral-300">
-                שאל את Ghost...
+                {t("components.chatMockup.askGhost")}
                 <span className="animate-blink">|</span>
               </span>
               <div className="w-6 h-6 rounded-md bg-neutral-950 flex items-center justify-center">
@@ -241,10 +224,10 @@ export function ChatMockup() {
   );
 }
 
-function UserMsg({ text, time }: { text: string; time: string }) {
+function UserMsg({ text, time, initial }: { text: string; time: string; initial: string }) {
   return (
     <div className="flex gap-2.5">
-      <div className="w-6 h-6 rounded-full bg-neutral-100 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-neutral-400">א</div>
+      <div className="w-6 h-6 rounded-full bg-neutral-100 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-neutral-400">{initial}</div>
       <div>
         <div className="bg-neutral-50 border border-neutral-100 rounded-xl rounded-tr-none px-3.5 py-2.5 max-w-sm">
           <p className="text-xs leading-relaxed">{text}</p>

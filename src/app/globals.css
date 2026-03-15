@@ -138,6 +138,23 @@ html {
   animation: fade-in-up 0.5s ease-out both;
 }
 
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out both;
+}
+
+html[dir="ltr"] {
+  --font-sans: var(--font-rubik);
+}
+
+html[dir="rtl"] {
+  --font-sans: var(--font-miriam-libre);
+}
+
 .print-only {
   display: none;
 }

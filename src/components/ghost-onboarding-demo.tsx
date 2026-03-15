@@ -11,6 +11,7 @@ import {
   SummaryCard,
 } from "@/components/ghost-demo-shared";
 import { AlertsPanel, TasksPanel, FinalSummary } from "@/components/ghost-demo-steps";
+import { useTranslation } from "@/lib/i18n";
 
 type Step =
   | "intro"
@@ -23,12 +24,6 @@ type Step =
   | "final";
 
 const TYPING_DELAY = 600;
-const CHANNEL_LABELS: Record<string, string> = {
-  whatsapp: "WhatsApp",
-  sms: "SMS",
-  email: "אימייל",
-  push: "Ghost App",
-};
 
 export function GhostOnboardingDemo() {
   const [step, setStep] = useState<Step>("intro");
@@ -44,6 +39,14 @@ export function GhostOnboardingDemo() {
   const [taskData, setTaskData] = useState<{ schedule: string; action: string } | null>(null);
 
   const chatBodyRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+
+  const channelLabels: Record<string, string> = {
+    whatsapp: t("components.demoSteps.channels.whatsapp"),
+    sms: t("components.demoSteps.channels.sms"),
+    email: t("components.demoSteps.channels.email"),
+    push: t("components.demoSteps.channels.push"),
+  };
 
   const scrollToBottom = useCallback(() => {
     if (chatBodyRef.current) {
@@ -72,13 +75,13 @@ export function GhostOnboardingDemo() {
 
   const handleStart = async () => {
     setIsStarted(true);
-    await ghostSay("היי 👋 אני Ghost.");
-    await ghostSay("יש לך מצלמות אבטחה?");
+    await ghostSay(t("components.onboarding.greeting"));
+    await ghostSay(t("components.onboarding.hasCameras"));
   };
 
   const handleHasCameras = async (yes: boolean) => {
-    userSay(yes ? "כן" : "עדיין לא");
-    await ghostSay(yes ? "איפה הן מותקנות?" : "איפה היית רוצה מצלמות?");
+    userSay(yes ? t("components.onboarding.yes") : t("components.onboarding.notYet"));
+    await ghostSay(yes ? t("components.onboarding.whereInstalled") : t("components.onboarding.whereWant"));
     setStep("location");
   };
 
@@ -88,7 +91,7 @@ export function GhostOnboardingDemo() {
     userSay(loc);
     setUserLocation(loc);
     setInputValue("");
-    await ghostSay("מה רואים במצלמה אחת? תאר בקצרה.");
+    await ghostSay(t("components.onboarding.whatSees"));
     setStep("camera-view");
   };
 
@@ -98,9 +101,9 @@ export function GhostOnboardingDemo() {
     userSay(view);
     setUserCameraView(view);
     setInputValue("");
-    await ghostSay("קיבלתי. 🎯 עכשיו Ghost יעשה בשבילך שני דברים:");
-    await ghostSay("❶ יתריע מיד כשמשהו קורה  ❷ יבצע בדיקות לפי לוח זמנים שלך.");
-    await ghostSay("בוא נגדיר — ❶ על מה להתריע?");
+    await ghostSay(t("components.onboarding.gotIt"));
+    await ghostSay(t("components.onboarding.twoThings"));
+    await ghostSay(t("components.onboarding.defineAlert"));
     setStep("alerts");
   };
 
@@ -111,8 +114,8 @@ export function GhostOnboardingDemo() {
 
   const handleAlertConfirm = async () => {
     if (!alertData) return;
-    userSay("מאשר ✓");
-    await ghostSay("התראה פעילה. ✓ עכשיו ❷ — בדיקה מתוזמנת:");
+    userSay(t("components.onboarding.confirmLabel"));
+    await ghostSay(t("components.onboarding.alertActive"));
     setStep("tasks");
   };
 
@@ -123,9 +126,9 @@ export function GhostOnboardingDemo() {
 
   const handleTaskConfirm = async () => {
     if (!taskData) return;
-    userSay("מאשר ✓");
-    await ghostSay("בדיקה מתוזמנת פעילה. ✓");
-    await ghostSay("זהו — Ghost עובד. הנה הסיכום:");
+    userSay(t("components.onboarding.confirmLabel"));
+    await ghostSay(t("components.onboarding.taskActive"));
+    await ghostSay(t("components.onboarding.summary"));
     setStep("final");
   };
 
@@ -134,13 +137,13 @@ export function GhostOnboardingDemo() {
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold border border-neutral-200 rounded-full px-3 py-1 mb-5">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-          <span>נסה עכשיו</span>
+          <span>{t("components.onboarding.badge")}</span>
         </div>
         <h1 className="text-3xl lg:text-5xl font-bold tracking-tight leading-[1.1] mb-4">
-          תראה כמה פשוט להתחיל.
+          {t("components.onboarding.title")}
         </h1>
         <p className="text-lg text-neutral-500 max-w-xl mx-auto">
-          Ghost מחובר ומוכן לדבר איתך. 60 שניות — ותבין למה הכל ישתנה.
+          {t("components.onboarding.description")}
         </p>
       </div>
 
@@ -149,11 +152,11 @@ export function GhostOnboardingDemo() {
           <Image src="/ghost-icon.png" alt="Ghost" width={28} height={28} className="rounded-md" />
           <div>
             <p className="text-white text-sm font-bold">Ghost</p>
-            <p className="text-neutral-400 text-[11px]">{isTyping ? "מקליד..." : "מחובר"}</p>
+            <p className="text-neutral-400 text-[11px]">{isTyping ? t("components.onboarding.typing") : t("components.onboarding.connected")}</p>
           </div>
           <div className="mr-auto flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-[11px] text-neutral-500">Online</span>
+            <span className="text-[11px] text-neutral-500">{t("components.onboarding.online")}</span>
           </div>
         </div>
 
@@ -171,19 +174,19 @@ export function GhostOnboardingDemo() {
               {step === "intro" && messages.length >= 2 && !isTyping && (
                 <div className="flex gap-2 justify-end animate-fade-in-up">
                   <button onClick={() => handleHasCameras(true)} className="bg-neutral-950 text-white text-sm font-bold px-5 py-2.5 rounded-full hover:bg-neutral-800 transition-colors cursor-pointer">
-                    כן
+                    {t("components.onboarding.yes")}
                   </button>
                   <button onClick={() => handleHasCameras(false)} className="bg-white border border-neutral-200 text-neutral-600 text-sm px-5 py-2.5 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer">
-                    עדיין לא
+                    {t("components.onboarding.notYet")}
                   </button>
                 </div>
               )}
 
               {step === "location" && !isTyping && (
-                <ChatInput value={inputValue} onChange={setInputValue} onSubmit={handleLocationSubmit} placeholder="מסעדה, מפעל, לובי מלון..." />
+                <ChatInput value={inputValue} onChange={setInputValue} onSubmit={handleLocationSubmit} placeholder={t("components.onboarding.locationPlaceholder")} />
               )}
               {step === "camera-view" && !isTyping && (
-                <ChatInput value={inputValue} onChange={setInputValue} onSubmit={handleCameraViewSubmit} placeholder="חניון, כניסה ראשית, מטבח..." />
+                <ChatInput value={inputValue} onChange={setInputValue} onSubmit={handleCameraViewSubmit} placeholder={t("components.onboarding.cameraViewPlaceholder")} />
               )}
 
               {step === "alerts" && !isTyping && (
@@ -191,9 +194,9 @@ export function GhostOnboardingDemo() {
               )}
               {step === "alert-summary" && !isTyping && alertData && (
                 <SummaryCard
-                  title="❶ התראה מיידית"
+                  title={t("components.onboarding.alertSummaryTitle")}
                   lines={[
-                    `כשאראה ${alertData.trigger} → התראה ב-${alertData.channels.map((c) => CHANNEL_LABELS[c] ?? c).join(", ")}`,
+                    `${t("components.demoSteps.whenSeen")} ${alertData.trigger} → ${alertData.channels.map((c) => channelLabels[c] ?? c).join(", ")}`,
                   ]}
                   onConfirm={handleAlertConfirm}
                 />
@@ -204,7 +207,7 @@ export function GhostOnboardingDemo() {
               )}
               {step === "task-summary" && !isTyping && taskData && (
                 <SummaryCard
-                  title="❷ בדיקה מתוזמנת"
+                  title={t("components.onboarding.taskSummaryTitle")}
                   lines={[
                     `${taskData.schedule} → ${taskData.action}`,
                   ]}

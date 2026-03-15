@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { KeyRound, LogIn, ArrowLeft, ShieldCheck, Terminal } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 const TERMINAL_LINES = [
   { text: "GHOST SECURE TERMINAL v3.2.1", delay: 0 },
@@ -13,6 +14,8 @@ const TERMINAL_LINES = [
 ];
 
 export default function PartnersLoginPage() {
+  const { t } = useTranslation();
+
   const [accessKey, setAccessKey] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -21,14 +24,14 @@ export default function PartnersLoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessKey.trim() || !inviteCode.trim()) {
-      setErrorMessage("נדרש מפתח גישה וקוד הזמנה");
+      setErrorMessage(t("partners.login.errorEmpty"));
       return;
     }
     setIsLoading(true);
     setErrorMessage("");
     setTimeout(() => {
       setIsLoading(false);
-      setErrorMessage("מפתח גישה שגוי או קוד הזמנה לא תקף");
+      setErrorMessage(t("partners.login.errorInvalid"));
     }, 2200);
   };
 
@@ -58,12 +61,12 @@ export default function PartnersLoginPage() {
               className="rounded-md opacity-60 group-hover:opacity-100 transition-opacity"
             />
             <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-500 font-bold">
-              Ghost Partner Portal
+              {t("partners.login.topBarLabel")}
             </span>
           </Link>
           <div className="flex items-center gap-2 text-[10px] text-neutral-600">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span className="tracking-[0.15em] uppercase">Encrypted</span>
+            <span className="tracking-[0.15em] uppercase">{t("partners.login.secure")}</span>
           </div>
         </div>
       </div>
@@ -117,7 +120,7 @@ export default function PartnersLoginPage() {
             <form onSubmit={handleLogin} className="space-y-3">
               <div>
                 <label className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold mb-1.5 block">
-                  מפתח גישה
+                  {t("partners.login.accessKey")}
                 </label>
                 <div className="relative">
                   <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
@@ -133,7 +136,7 @@ export default function PartnersLoginPage() {
 
               <div>
                 <label className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold mb-1.5 block">
-                  Login Invite Code
+                  {t("partners.login.inviteCode")}
                 </label>
                 <div className="relative">
                   <LogIn className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
@@ -141,7 +144,7 @@ export default function PartnersLoginPage() {
                     type="text"
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value)}
-                    placeholder="GHOST-XXXX-XXXX"
+                    placeholder={t("partners.login.inviteCodePlaceholder")}
                     className="w-full bg-neutral-900 border border-neutral-800 rounded-lg pr-10 pl-4 py-3 text-sm text-white placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 font-mono tracking-wider transition-colors"
                   />
                 </div>
@@ -161,12 +164,12 @@ export default function PartnersLoginPage() {
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-neutral-400 border-t-neutral-950 rounded-full animate-spin" />
-                    <span>מאמת...</span>
+                    <span>{t("partners.login.authenticating")}</span>
                   </>
                 ) : (
                   <>
                     <ShieldCheck className="w-4 h-4" />
-                    <span>כניסה לפורטל</span>
+                    <span>{t("partners.login.loginButton")}</span>
                   </>
                 )}
               </button>
@@ -191,18 +194,18 @@ export default function PartnersLoginPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-right">
             <p className="text-sm text-neutral-400">
-              עדיין לא מפיץ רשמי?{" "}
-              <span className="text-white font-bold">הצטרפו לרשת המפיצים של Ghost</span>
+              {t("partners.login.notPartner")}{" "}
+              <span className="text-white font-bold">{t("partners.login.joinNetwork")}</span>
             </p>
             <p className="text-[11px] text-neutral-600 mt-0.5">
-              עמלות קבועות, ליווי מלא, הכשרה מקצועית ופורטל ניהול ייעודי
+              {t("partners.login.joinBenefits")}
             </p>
           </div>
           <Link
             href="/partners/join"
             className="flex items-center gap-2 bg-white text-neutral-950 font-bold text-xs rounded-full px-5 py-2.5 hover:bg-neutral-200 transition-colors whitespace-nowrap"
           >
-            הצטרפות כמפיץ
+            {t("partners.login.joinButton")}
             <ArrowLeft className="w-3.5 h-3.5" />
           </Link>
         </div>

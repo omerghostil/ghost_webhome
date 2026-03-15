@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { Send } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 export interface ChatMessage {
   from: "ghost" | "user";
@@ -10,18 +11,20 @@ export interface ChatMessage {
 }
 
 export function StartScreen({ onStart }: { onStart: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-center h-full text-center gap-6">
       <Image src="/ghost-icon.png" alt="Ghost" width={56} height={56} className="rounded-2xl" />
       <div>
-        <p className="text-lg font-bold text-neutral-950 mb-2">Ghost מוכן לדבר איתך.</p>
-        <p className="text-sm text-neutral-400">60 שניות — ותבין למה הכל ישתנה.</p>
+        <p className="text-lg font-bold text-neutral-950 mb-2">{t("components.onboarding.ghostReady")}</p>
+        <p className="text-sm text-neutral-400">{t("components.onboarding.startDescription")}</p>
       </div>
       <button
         onClick={onStart}
         className="bg-neutral-950 text-white font-bold text-sm px-8 py-3 rounded-full hover:bg-neutral-800 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-lg shadow-neutral-950/20"
       >
-        בוא נתחיל
+        {t("components.onboarding.startButton")}
       </button>
     </div>
   );
@@ -107,10 +110,16 @@ export function ChatInput({
 }
 
 export function StepBadge({ current, total, label }: { current: number; total: number; label: string }) {
+  const { t } = useTranslation();
+
+  const stepText = t("components.demoSteps.stepOf")
+    .replace("{current}", String(current))
+    .replace("{total}", String(total));
+
   return (
     <div className="flex items-center gap-2 mb-4">
       <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-white bg-neutral-950 rounded-full px-3 py-1">
-        שלב {current} מתוך {total}
+        {stepText}
       </span>
       <span className="text-[11px] text-neutral-400">{label}</span>
     </div>
@@ -130,6 +139,8 @@ export function ConfirmButton({ label, onClick, disabled }: { label: string; onC
 }
 
 export function SummaryCard({ title, lines, onConfirm }: { title: string; lines: string[]; onConfirm: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <div className="animate-fade-in-up bg-white border-2 border-neutral-950 rounded-xl p-5 space-y-4">
       <p className="text-sm font-bold text-neutral-950">{title}</p>
@@ -143,7 +154,7 @@ export function SummaryCard({ title, lines, onConfirm }: { title: string; lines:
           onClick={onConfirm}
           className="flex-1 bg-neutral-950 text-white font-bold text-sm py-3 rounded-xl hover:bg-neutral-800 transition-all cursor-pointer"
         >
-          אישור והפעלה
+          {t("components.demoSteps.confirmAndActivate")}
         </button>
       </div>
     </div>

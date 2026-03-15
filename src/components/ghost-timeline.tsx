@@ -2,42 +2,10 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { History, Radio, Rocket } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
-interface TimelineStage {
-  id: "past" | "present" | "future";
-  icon: typeof History;
-  label: string;
-  title: string;
-  example: string;
-}
-
-const STAGES: TimelineStage[] = [
-  {
-    id: "past",
-    icon: History,
-    label: "עבר",
-    title: "Ghost זוכר הכל.",
-    example:
-      "\"מתי בפעם האחרונה החדר של רוני הבת שלי היה ממש מסודר?\" — Ghost יחפש בכל הצילומים ויחזיר תשובה מדויקת עם תאריך, שעה וקליפ.",
-  },
-  {
-    id: "present",
-    icon: Radio,
-    label: "הווה",
-    title: "Ghost צופה ומבין 24/7.",
-    example:
-      "\"היי מצלמות אצטדיון סמי עופר — איפה נמצא הבן שלי בר, בן 5, חולצה עם סמל סופרמן, מחזיק גביע גלידת תות עם סוכריות צבעוניות?\" — Ghost יסרוק את כל הפידים וימצא אותו מיידית.",
-  },
-  {
-    id: "future",
-    icon: Rocket,
-    label: "עתיד",
-    title: "Ghost פועל בשבילך.",
-    example:
-      "\"כל לילה בין 22:00–06:00 תבדוק במצלמת הפארק אם יש יותר מ-3 אנשים. אם כן — בדוק אם יש אלכוהול בתמונה ושלח לי התראה בוואטסאפ.\" — Ghost יבצע, ללא הגבלה, בהתאמה אישית מלאה.",
-  },
-];
-
+const STAGE_ICONS = [History, Radio, Rocket];
+const STAGE_IDS = ["past", "present", "future"] as const;
 const CYCLE_DURATION = 7000;
 
 export function GhostTimeline() {
@@ -46,6 +14,17 @@ export function GhostTimeline() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { tArray } = useTranslation();
+
+  const stageData = tArray<{ label: string; title: string; example: string }>("components.ghostTimeline.stages");
+
+  const stages = stageData.map((s, i) => ({
+    id: STAGE_IDS[i],
+    icon: STAGE_ICONS[i],
+    label: s.label,
+    title: s.title,
+    example: s.example,
+  }));
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -68,9 +47,9 @@ export function GhostTimeline() {
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % STAGES.length);
+      setActiveIndex((prev) => (prev + 1) % stages.length);
     }, CYCLE_DURATION);
-  }, []);
+  }, [stages.length]);
 
   useEffect(() => {
     if (!isVisible || isPaused) return;
@@ -87,13 +66,15 @@ export function GhostTimeline() {
     setTimeout(() => setIsPaused(false), CYCLE_DURATION * 2);
   };
 
-  const activeStage = STAGES[activeIndex];
+  const activeStage = stages[activeIndex];
+
+  if (stages.length === 0) return null;
 
   return (
     <div ref={containerRef} className="mt-16">
       {/* Stage Selector */}
       <div className="flex items-center justify-center gap-0 mb-10">
-        {STAGES.map((stage, i) => {
+        {stages.map((stage, i) => {
           const isActive = i === activeIndex;
           const Icon = stage.icon;
 
@@ -124,7 +105,7 @@ export function GhostTimeline() {
                 )}
               </button>
 
-              {i < STAGES.length - 1 && (
+              {i < stages.length - 1 && (
                 <div
                   className="w-12 h-px mx-1 transition-all duration-700"
                   style={{
@@ -172,7 +153,7 @@ export function GhostTimeline() {
 
           {/* Progress bar */}
           <div className="mt-8 flex gap-2">
-            {STAGES.map((_, i) => (
+            {stages.map((_, i) => (
               <div key={i} className="flex-1 h-0.5 rounded-full bg-neutral-100 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${

@@ -9,6 +9,7 @@ import {
   Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n";
 
 interface JobPosition {
   title: string;
@@ -28,6 +29,7 @@ interface CareersJobCardProps {
 
 export function CareersJobCard({ job }: CareersJobCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="border border-neutral-200 rounded-2xl bg-white overflow-hidden hover:border-neutral-300 transition-colors">
@@ -58,7 +60,7 @@ export function CareersJobCard({ job }: CareersJobCardProps) {
             onClick={(e) => e.stopPropagation()}
             className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-9 px-5 text-xs font-bold hidden sm:inline-flex items-center justify-center gap-2 transition-colors"
           >
-            הגש מועמדות
+            {t("careers.positions.apply")}
           </a>
           <ChevronDown
             className={`w-5 h-5 text-neutral-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
@@ -78,7 +80,7 @@ export function CareersJobCard({ job }: CareersJobCardProps) {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-neutral-400 mb-3">
-                  תחומי אחריות
+                  {t("careers.positions.responsibilities")}
                 </h4>
                 <ul className="space-y-2">
                   {job.responsibilities.map((item, i) => (
@@ -95,7 +97,7 @@ export function CareersJobCard({ job }: CareersJobCardProps) {
 
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-neutral-400 mb-3">
-                  דרישות
+                  {t("careers.positions.requirements")}
                 </h4>
                 <ul className="space-y-2">
                   {job.requirements.map((item, i) => (
@@ -113,7 +115,7 @@ export function CareersJobCard({ job }: CareersJobCardProps) {
 
             <div className="mt-6">
               <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-neutral-400 mb-3">
-                יתרון
+                {t("careers.positions.niceToHave")}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {job.niceToHave.map((item, i) => (
@@ -133,7 +135,7 @@ export function CareersJobCard({ job }: CareersJobCardProps) {
               >
                 <Button className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-10 px-6 text-xs font-bold w-full">
                   <Mail className="ml-2 w-4 h-4" />
-                  הגש מועמדות
+                  {t("careers.positions.apply")}
                 </Button>
               </a>
             </div>

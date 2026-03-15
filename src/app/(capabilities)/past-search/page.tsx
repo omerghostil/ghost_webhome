@@ -1,11 +1,9 @@
-import { Clock, Search, MessageSquare, Zap } from "lucide-react";
+"use client";
 
-const ADVANTAGES = [
-  { icon: Zap, title: "שניות במקום שעות", desc: "Ghost מאתר תוצאות תוך שניות. ללא גלילה ידנית בווידאו." },
-  { icon: MessageSquare, title: "שפה טבעית", desc: "מתארים מה מחפשים במילים פשוטות. בלי הגדרות טכניות." },
-  { icon: Search, title: "מצבים מורכבים", desc: "Ghost מבין סיטואציות שלמות מפריים בודד, לא רק אובייקטים." },
-  { icon: Clock, title: "ללא הדרכה", desc: "אם אתה יודע לכתוב הודעה, אתה יודע לחפש ב-Ghost." },
-];
+import { Clock, Search, MessageSquare, Zap } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
+
+const ADVANTAGE_ICONS = [Zap, MessageSquare, Search, Clock];
 
 const EXAMPLES = [
   {
@@ -112,29 +110,37 @@ const EXAMPLES = [
 ];
 
 export default function PastSearchPage() {
+  const { t, tArray } = useTranslation();
+
+  const advantages = tArray<{ title: string; desc: string }>("components.pastSearch.advantages").map((adv, i) => ({
+    icon: ADVANTAGE_ICONS[i],
+    title: adv.title,
+    desc: adv.desc,
+  }));
+
   return (
     <div className="px-8 lg:px-12 py-12">
       {/* Header */}
       <div className="max-w-3xl mb-16">
         <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
-          חיפוש בעבר
+          {t("components.pastSearch.badge")}
         </span>
         <h1 className="text-3xl lg:text-5xl font-bold tracking-tight mt-3 mb-6">
-          Ghost מוצא כל דבר
+          {t("components.pastSearch.title")}
           <br />
-          <span className="text-neutral-400">שאפשר לתאר במילים.</span>
+          <span className="text-neutral-400">{t("components.pastSearch.titleHighlight")}</span>
         </h1>
         <p className="text-lg text-neutral-500 leading-relaxed mb-4">
-          במערכות VMS מסורתיות, חיפוש אירוע מהעבר מחייב לנחש זמן ולגלול ידנית שעות של וידאו. Ghost מחליף את כל התהליך בשאלה אחת בשפה טבעית — והתוצאה מגיעה תוך שניות.
+          {t("components.pastSearch.description1")}
         </p>
         <p className="text-neutral-500 leading-relaxed">
-          פשוט לשלוח הודעה למצלמה או לקבוצת מצלמות ולתאר מה מחפשים. Ghost סורק את ההיסטוריה, מזהה מצבים מורכבים מפריים בודד, ומחזיר תשובה מדויקת עם זמן, תיאור וצילום רלוונטי.
+          {t("components.pastSearch.description2")}
         </p>
       </div>
 
       {/* Advantages */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-20">
-        {ADVANTAGES.map((adv, i) => (
+        {advantages.map((adv, i) => (
           <div key={i} className="border border-neutral-200 rounded-xl p-5 hover:border-neutral-300 transition-colors">
             <adv.icon className="w-5 h-5 text-neutral-400 mb-3" strokeWidth={1.5} />
             <h3 className="text-sm font-bold mb-1">{adv.title}</h3>
@@ -146,13 +152,13 @@ export default function PastSearchPage() {
       {/* Examples by environment */}
       <div className="mb-8">
         <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
-          דוגמאות שימוש
+          {t("components.pastSearch.examplesTitle")}
         </span>
         <h2 className="text-2xl lg:text-3xl font-bold tracking-tight mt-3 mb-2">
-          לפי סביבת עבודה
+          {t("components.pastSearch.examplesSubtitle")}
         </h2>
         <p className="text-neutral-500 mb-12">
-          כל שאלה היא דוגמה אמיתית שאפשר לשלוח ל-Ghost. התוצאות מגיעות תוך שניות.
+          {t("components.pastSearch.examplesDescription")}
         </p>
       </div>
 
@@ -161,7 +167,7 @@ export default function PastSearchPage() {
           <div key={gi}>
             <div className="flex items-baseline gap-3 mb-2">
               <h3 className="text-lg font-bold">{group.environment}</h3>
-              <span className="text-xs text-neutral-400">{group.queries.length} דוגמאות</span>
+              <span className="text-xs text-neutral-400">{group.queries.length} {t("components.pastSearch.examples")}</span>
             </div>
             <p className="text-sm text-neutral-500 mb-4">{group.description}</p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -183,15 +189,15 @@ export default function PastSearchPage() {
 
       {/* Bottom CTA */}
       <div className="mt-20 border border-neutral-200 rounded-2xl p-8 text-center bg-neutral-50/50">
-        <h3 className="text-xl font-bold mb-2">רוצה לראות את זה בפעולה?</h3>
+        <h3 className="text-xl font-bold mb-2">{t("components.pastSearch.ctaTitle")}</h3>
         <p className="text-sm text-neutral-500 mb-6">
-          כל דוגמה שראית כאן — Ghost יכול להריץ על המצלמות שלך. תוך שניות.
+          {t("components.pastSearch.ctaDescription")}
         </p>
         <a
           href="/demo"
           className="inline-flex items-center justify-center bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-11 px-7 text-sm font-bold transition-colors"
         >
-          קבע הדגמה
+          {t("components.pastSearch.ctaButton")}
         </a>
       </div>
     </div>

@@ -2,32 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Activity, ScanSearch, BrainCircuit } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
-const STAGES = [
-  {
-    icon: Activity,
-    year: "2010+",
-    title: "זיהוי תנועה",
-    description: "מערכות מבוססות פיקסלים שמזהות שינוי בתמונה. ללא הבנה, ללא הקשר.",
-  },
-  {
-    icon: ScanSearch,
-    year: "2018+",
-    title: "זיהוי אובייקטים",
-    description: "אלגוריתמים שמסווגים אובייקטים בווידאו — אדם, רכב, חפץ. עדיין ללא הבנת סיטואציה.",
-  },
-  {
-    icon: BrainCircuit,
-    year: "2024",
-    title: "Ghost",
-    description: "סוכן AI שמבין את המתרחש, זוכר אירועים, ומבצע פעולות בהתאמה אישית מלאה.",
-    isActive: true,
-  },
-];
+const STAGE_ICONS = [Activity, ScanSearch, BrainCircuit];
 
 export function EvolutionTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const { t, tArray } = useTranslation();
+
+  const stageData = tArray<{ year: string; title: string; description: string }>("components.evolutionTimeline.stages");
+
+  const stages = stageData.map((s, i) => ({
+    icon: STAGE_ICONS[i],
+    year: s.year,
+    title: s.title,
+    description: s.description,
+    isActive: i === stageData.length - 1,
+  }));
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -51,7 +43,7 @@ export function EvolutionTimeline() {
     <div ref={containerRef} className="relative mt-20 pt-12 border-t border-neutral-100">
       <div className="text-center mb-12">
         <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
-          התפתחות ניתוח הוידאו
+          {t("components.evolutionTimeline.badge")}
         </p>
       </div>
 
@@ -65,7 +57,7 @@ export function EvolutionTimeline() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-10 md:gap-6">
-          {STAGES.map((stage, i) => (
+          {stages.map((stage, i) => (
             <div
               key={i}
               className="flex flex-col items-center text-center transition-all duration-700 ease-out"
@@ -125,7 +117,7 @@ export function EvolutionTimeline() {
                   }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-neutral-950 animate-pulse" />
-                  הדור הבא
+                  {t("components.evolutionTimeline.nextGen")}
                 </div>
               )}
             </div>

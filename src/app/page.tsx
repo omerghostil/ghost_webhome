@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -20,99 +22,30 @@ import {
   Check,
 } from "lucide-react";
 import { GhostTypingText } from "@/components/ghost-typing-text";
+import { useTranslation } from "@/lib/i18n";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
-const REALTIME_QUERIES = [
-  "האם מול ארון החשמל הראשי מונח סולם פתוח או עגלת ציוד שחוסמים גישה?",
-  "האם על רצפת אזור ההעמסה נראית שלולית נוזל ליד משטח עץ עם קרטונים?",
-  "האם השער ההיקפי סגור ונעול בשרשרת מסביב לשני צדי השער לפי הנוהל?",
-  "האם באזור היציע נראה עשן או חפץ בוער נראה לעין?",
-  "האם אחת מדלתות יציאת החירום חסומה על ידי עגלת שינוע ועליה ארגזים?",
-];
+const ALERT_CHANNEL_ICONS = [Smartphone, MessageSquare, Mail, Phone, Volume2];
 
-const ALERT_CHANNELS = [
-  { name: "אפליקציית Ghost", icon: Smartphone },
-  { name: "WhatsApp", icon: MessageSquare },
-  { name: "אימייל", icon: Mail },
-  { name: "שיחה טלפונית", icon: Phone },
-  { name: "אזעקה במתחם", icon: Volume2 },
-];
-
-const USE_CASES = [
-  { title: "קמעונאות", desc: "בדיקת סדר מדפים, איתור פריטים זרים על הרצפה, מניעת מפגעי בטיחות בשטח המכירה." },
-  { title: "מסעדות ואירועים", desc: "אכיפת ניקיון מטבח, בקרת סגירה לילית, בדיקת מפגעי החלקה ותקינות ציוד." },
-  { title: "בתי חולים ומוסדות", desc: "יציאות חירום פנויות, מניעת חסימת מסדרונות, גילוי מפגעי בטיחות." },
-  { title: "רשויות מקומיות", desc: "בדיקת תקינות גדרות, איתור נזק ויזואלי במרחב הציבורי, אכיפת סדר." },
-  { title: "תעשייה ולוגיסטיקה", desc: "בקרת נהלי בטיחות, גילוי מפגעי גישה, בדיקת נעילת שערים ותקינות ציוד." },
-];
-
-const TEAM_MEMBERS = [
-  {
-    name: "יבגני וישנבסקי",
-    role: "יו״ר דירקטוריון",
-    bio: "יזם, מהנדס ואיש עסקים בעל ניסיון רב בהקמה והובלה של חברות חדשנות, בפיתוח מערכות טכנולוגיות מתקדמות ובהובלת יוזמות פורצות דרך בתחומי האנרגיה הירוקה והטכנולוגיה המתקדמת. בנוסף, משקיע יחיד בסבב ההשקעה CEED R2 בחברת Ghost.",
-    ghostTyping: true,
-    image: "/eivgeni_portrait.jpeg",
-    imagePosition: "center 45%",
-  },
-  {
-    name: "עומר אלפסי",
-    role: "שותף מייסד ומנכ״ל Ghost Israel",
-    bio: "יזם ואיש עסקים בתחום המימון, בוגר היחידה המטכ״לית ללוחמה בטרור כימי וביולוגי, גדוד אב״כ 76. לשעבר סמנכ״ל פיתוח עסקי בגופים עסקיים מובילים ובתעשייה הביטחונית בישראל. בעל ניסיון בהובלת פרויקטים ביטחוניים מורכבים ורגישים.",
-    ghostTyping: true,
-    image: "/omer_portrait.png",
-    imagePosition: "center 22%",
-  },
-];
-
-const AI_CAPABILITIES = [
-  "להבין מה מתרחש בווידאו בזמן אמת",
-  "לענות על שאלות על אירועים שהתרחשו בעבר",
-  "לבצע חיפוש חכם בווידאו",
-  "להגדיר התראות מותאמות אישית",
-  "לבצע בדיקות מתוזמנות וסריקות",
-  "לפעול על בסיס טריגרים חכמים או לוחות זמנים",
-];
-
-const ADVISORS = [
-  "חברי כנסת",
-  "קצינים בכירים בצה״ל ובמשטרה",
-  "ראשי שב״כ ומשרד החוץ לשעבר",
-  "בוגרי יחידות טכנולוגיות מובחרות",
-  'מנכ"לים של חברות מובילות בישראל',
-  "יועצים אסטרטגיים בכירים",
+const TEAM_IMAGES = [
+  { image: "/eivgeni_portrait.jpeg", imagePosition: "center 45%", ghostTyping: true },
+  { image: "/omer_portrait.png", imagePosition: "center 22%", ghostTyping: true },
 ];
 
 export default function Home() {
+  const { t, tArray } = useTranslation();
+
+  const realtimeQueries = tArray<string>("home.realtimeQueries");
+  const alertChannels = tArray<string>("home.alertChannels");
+  const useCases = tArray<{ title: string; desc: string }>("home.useCases");
+  const teamMembers = tArray<{ name: string; role: string; bio: string }>("home.teamMembers");
+  const aiCapabilities = tArray<string>("home.aiCapabilities");
+  const advisors = tArray<string>("home.advisors");
+
   return (
     <div className="min-h-screen bg-white text-neutral-950 selection:bg-neutral-200">
-      {/* Navbar */}
-      <nav className="border-b border-neutral-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center">
-            <Image src="/ghost-icon.png" alt="Ghost" width={38} height={38} className="rounded-lg" />
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-neutral-500">
-            <a href="#msg1" className="hover:text-neutral-950 transition-colors">ניווט</a>
-            <a href="#msg2" className="hover:text-neutral-950 transition-colors">שיחה</a>
-            <a href="#msg3" className="hover:text-neutral-950 transition-colors">בדיקות</a>
-            <a href="#msg4" className="hover:text-neutral-950 transition-colors">התראות</a>
-            <Link href="/about" className="hover:text-neutral-950 transition-colors">הסיפור שלנו</Link>
-            <Link href="/careers" className="hover:text-neutral-950 transition-colors">קריירה</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/partners/login">
-              <Button variant="outline" className="border-neutral-300 text-neutral-600 hover:bg-neutral-50 rounded-full h-9 px-4 text-xs">
-                כניסה למפיצים
-              </Button>
-            </Link>
-            <Link href="/demo">
-              <Button className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-9 px-5 text-xs font-bold">
-                קבע הדגמה
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main>
         {/* ── HERO ── */}
@@ -121,25 +54,25 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 pt-20 pb-20 lg:pt-28 lg:pb-28">
             <div className="text-center mb-14">
               <div className="inline-block text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold border border-neutral-200 rounded-full px-3 py-1 mb-6">
-                Natural Language Camera Interface
+                {t("home.hero.badge")}
               </div>
               <h1 className="text-4xl lg:text-6xl font-bold tracking-tight leading-[1.08] mb-6">
-                דברו עם המצלמות.
+                {t("home.hero.title")}
                 <br />
-                <span className="text-neutral-400">בשפה טבעית.</span>
+                <span className="text-neutral-400">{t("home.hero.titleHighlight")}</span>
               </h1>
               <p className="text-lg text-neutral-500 leading-relaxed max-w-2xl mx-auto mb-10">
-                Ghost הוא מערכת הפעלה חדשה למצלמות אבטחה. תארו במילים מה חשוב לכם לבדוק, לאכוף או להתריע עליו — Ghost יעשה את השאר. בלי רשימת יכולות סגורה מראש. בלי אימון מודלים. בלי להחליף ציוד.
+                {t("home.hero.description")}
               </p>
               <div className="flex gap-3 justify-center">
                 <Link href="/demo">
                   <Button className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-12 px-7 text-sm font-bold">
-                    הדגמה חינם
+                    {t("common.buttons.freeDemo")}
                     <ArrowLeft className="mr-2 w-4 h-4" />
                   </Button>
                 </Link>
                 <Button variant="outline" className="border-neutral-300 text-neutral-600 hover:bg-neutral-50 rounded-full h-12 px-7 text-sm">
-                  איך זה עובד
+                  {t("common.buttons.howItWorks")}
                 </Button>
               </div>
             </div>
@@ -171,22 +104,22 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 py-24">
             <div className="grid lg:grid-cols-2 gap-16 items-start">
               <div>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold">03</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold">{t("home.sections.realtime.number")}</span>
                 <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mt-3 mb-5">
-                  תארו במילים מה לבדוק.
+                  {t("home.sections.realtime.title")}
                   <br />
-                  <span className="text-neutral-500">Ghost יענה תוך שניות.</span>
+                  <span className="text-neutral-500">{t("home.sections.realtime.titleHighlight")}</span>
                 </h2>
                 <p className="text-neutral-400 leading-relaxed">
-                  שלחו הודעה לכל מצלמה או קבוצת מצלמות ותארו את מה שחשוב לכם לבדוק — בטיחות, סדר, תחזוקה, אבטחה. Ghost מנתח את הסצנה הנוכחית ומחזיר תשובה מיידית עם צילום רלוונטי. בלי רשימת זיהויים סגורה. בלי חוקים קשיחים.
+                  {t("home.sections.realtime.description")}
                 </p>
               </div>
               <div className="space-y-2.5">
-                {REALTIME_QUERIES.map((q, i) => (
+                {realtimeQueries.map((q, i) => (
                   <div key={i} className="flex items-center gap-3 border border-neutral-700 rounded-xl px-4 py-3 bg-neutral-800/50 hover:border-neutral-600 transition-colors">
                     <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-slow flex-shrink-0" />
                     <p className="text-xs text-neutral-300">&ldquo;{q}&rdquo;</p>
-                    <span className="text-[10px] text-neutral-600 mr-auto whitespace-nowrap">LIVE</span>
+                    <span className="text-[10px] text-neutral-600 mr-auto whitespace-nowrap">{t("home.sections.realtime.live")}</span>
                   </div>
                 ))}
               </div>
@@ -198,14 +131,14 @@ export default function Home() {
         <section id="msg4" className="border-t border-neutral-100">
           <div className="max-w-6xl mx-auto px-6 py-24">
             <div className="max-w-2xl mb-12">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">04</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">{t("home.sections.tasks.number")}</span>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mt-3 mb-5">
-                משימות, בדיקות והתראות
+                {t("home.sections.tasks.title")}
                 <br />
-                <span className="text-neutral-400">בשפה טבעית.</span>
+                <span className="text-neutral-400">{t("home.sections.tasks.titleHighlight")}</span>
               </h2>
               <p className="text-neutral-500 leading-relaxed">
-                הגדירו בדיקות קבועות, בדיקות לפי טריגר, משימות מותאמות אישית וניטור רציף — הכל במילים. Ghost לא דורש אימון מודלים לכל צורך חדש. המשתמש מגדיר, Ghost מבצע.
+                {t("home.sections.tasks.description")}
               </p>
             </div>
 
@@ -213,53 +146,56 @@ export default function Home() {
               {/* Continuous monitoring */}
               <div className="border border-neutral-200 rounded-2xl p-6 bg-white">
                 <Bell className="w-5 h-5 text-neutral-400 mb-4" strokeWidth={1.5} />
-                <h3 className="font-bold text-sm mb-3">ניטור רציף</h3>
+                <h3 className="font-bold text-sm mb-3">{t("home.sections.tasks.continuousMonitoring")}</h3>
                 <div className="bg-neutral-50 border border-neutral-100 rounded-xl p-3.5 text-xs text-neutral-600 leading-relaxed mb-4">
-                  &ldquo;בדוק רציף אם נראים עשן, אש גלויה או חפץ בוער במתחם. בכל זיהוי — התראה קריטית מיידית.&rdquo;
+                  &ldquo;{t("home.sections.tasks.continuousMonitoringExample")}&rdquo;
                 </div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-neutral-400 font-bold mb-2.5">ערוצי התראה:</p>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-neutral-400 font-bold mb-2.5">{t("home.sections.tasks.alertChannelsLabel")}</p>
                 <div className="flex flex-wrap gap-2">
-                  {ALERT_CHANNELS.map((ch, i) => (
-                    <div key={i} className="flex items-center gap-1.5 text-[10px] text-neutral-500 bg-neutral-50 border border-neutral-100 rounded-md px-2 py-1">
-                      <ch.icon className="w-3 h-3" />
-                      {ch.name}
-                    </div>
-                  ))}
+                  {alertChannels.map((name, i) => {
+                    const Icon = ALERT_CHANNEL_ICONS[i];
+                    return (
+                      <div key={i} className="flex items-center gap-1.5 text-[10px] text-neutral-500 bg-neutral-50 border border-neutral-100 rounded-md px-2 py-1">
+                        {Icon && <Icon className="w-3 h-3" />}
+                        {name}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Scheduled check */}
               <div className="border border-neutral-200 rounded-2xl p-6 bg-white">
                 <Calendar className="w-5 h-5 text-neutral-400 mb-4" strokeWidth={1.5} />
-                <h3 className="font-bold text-sm mb-3">בדיקה מתוזמנת</h3>
+                <h3 className="font-bold text-sm mb-3">{t("home.sections.tasks.scheduledCheck")}</h3>
                 <div className="bg-neutral-50 border border-neutral-100 rounded-xl p-3.5 text-xs text-neutral-600 leading-relaxed">
-                  &ldquo;בכל יום בשעה 21:00 בדוק האם במטבח כל דלתות המקררים סגורות, אין ציוד חם נראה דולק, השיש פנוי ממפגעים והרצפה נקייה ממפגעי החלקה.&rdquo;
+                  &ldquo;{t("home.sections.tasks.scheduledCheckExample")}&rdquo;
                 </div>
                 <div className="mt-3 flex items-center gap-2 text-[10px] text-neutral-400">
-                  <div className="bg-neutral-100 rounded-md px-2 py-1 font-mono">כל יום</div>
-                  <div className="bg-neutral-100 rounded-md px-2 py-1 font-mono">21:00</div>
-                  <div className="bg-neutral-100 rounded-md px-2 py-1">חוזר</div>
+                  <div className="bg-neutral-100 rounded-md px-2 py-1 font-mono">{t("home.sections.tasks.everyDay")}</div>
+                  <div className="bg-neutral-100 rounded-md px-2 py-1 font-mono">{t("home.sections.tasks.time")}</div>
+                  <div className="bg-neutral-100 rounded-md px-2 py-1">{t("home.sections.tasks.recurring")}</div>
                 </div>
               </div>
 
               {/* Smart trigger */}
               <div className="border border-neutral-200 rounded-2xl p-6 bg-white">
                 <Radio className="w-5 h-5 text-neutral-400 mb-4" strokeWidth={1.5} />
-                <h3 className="font-bold text-sm mb-3">בדיקה לפי טריגר</h3>
+                <h3 className="font-bold text-sm mb-3">{t("home.sections.tasks.triggerCheck")}</h3>
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="bg-neutral-950 text-white text-[10px] font-bold rounded-md px-2 py-1">טריגר</div>
-                    <span className="text-xs text-neutral-500">דלת ארון חשמל ראשי נפתחת</span>
+                    <div className="bg-neutral-950 text-white text-[10px] font-bold rounded-md px-2 py-1">{t("home.sections.tasks.trigger")}</div>
+                    <span className="text-xs text-neutral-500">{t("home.sections.tasks.triggerDesc")}</span>
                   </div>
                   <div className="w-px h-3 bg-neutral-200 mr-4" />
                   <div className="flex items-center gap-2">
-                    <div className="bg-neutral-950 text-white text-[10px] font-bold rounded-md px-2 py-1">בדיקה</div>
-                    <span className="text-xs text-neutral-500">לבוש לפי #מדי_עבודה_חשמלאי_מורשה</span>
+                    <div className="bg-neutral-950 text-white text-[10px] font-bold rounded-md px-2 py-1">{t("home.sections.tasks.check")}</div>
+                    <span className="text-xs text-neutral-500">{t("home.sections.tasks.checkDesc")}</span>
                   </div>
                   <div className="w-px h-3 bg-neutral-200 mr-4" />
                   <div className="flex items-center gap-2">
-                    <div className="bg-neutral-950 text-white text-[10px] font-bold rounded-md px-2 py-1">פעולה</div>
-                    <span className="text-xs text-neutral-500">התראה אם לא עומד בנוהל</span>
+                    <div className="bg-neutral-950 text-white text-[10px] font-bold rounded-md px-2 py-1">{t("home.sections.tasks.action")}</div>
+                    <span className="text-xs text-neutral-500">{t("home.sections.tasks.actionDesc")}</span>
                   </div>
                 </div>
               </div>
@@ -270,13 +206,13 @@ export default function Home() {
         {/* ── USE CASES — Part 4: No fixed capability list ── */}
         <section className="border-t border-neutral-100 bg-neutral-50/50">
           <div className="max-w-6xl mx-auto px-6 py-24">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4">אין רשימת יכולות סגורה</p>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">הגבול הוא הצרכים שלכם.</h2>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4">{t("home.sections.useCases.badge")}</p>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">{t("home.sections.useCases.title")}</h2>
             <p className="text-neutral-500 leading-relaxed mb-10 max-w-2xl">
-              Ghost לא מוגבל לקטלוג ישן של זיהויים. הארגון מגדיר במילים מה חשוב לו — לפי הנהלים, הצרכים המבצעיים והדמיון של מי שמגדיר את הבדיקות. הנה כמה סביבות שכבר עובדות עם Ghost:
+              {t("home.sections.useCases.description")}
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              {USE_CASES.map((uc, i) => (
+              {useCases.map((uc, i) => (
                 <div key={i} className="border border-neutral-200 rounded-xl p-5 bg-white hover:border-neutral-300 transition-colors">
                   <h3 className="font-bold text-sm mb-1.5">{uc.title}</h3>
                   <p className="text-xs text-neutral-500 leading-relaxed">{uc.desc}</p>
@@ -298,19 +234,19 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 py-24 lg:py-32">
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-block text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold border border-neutral-700 rounded-full px-3 py-1 mb-6">
-                המוצר
+                {t("home.sections.product.badge")}
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-6">
-                תקשורת ישירה עם המצלמות.
+                {t("home.sections.product.title")}
               </h2>
               <p className="text-neutral-400 leading-relaxed mb-12">
-                Ghost היא מערכת המאפשרת לתקשר עם מערך המצלמות שלך באמצעות ממשק צ׳אט. במקום מערכות מורכבות ותפריטים מסובכים, המשתמש פשוט מדבר עם המצלמות שלו.
+                {t("home.sections.product.description")}
               </p>
 
               <div className="text-right max-w-lg mx-auto mb-12">
-                <p className="text-sm font-bold text-neutral-300 mb-4">סוכן הבינה המלאכותית מסוגל</p>
+                <p className="text-sm font-bold text-neutral-300 mb-4">{t("home.sections.product.aiCapabilitiesLabel")}</p>
                 <div className="space-y-3">
-                  {AI_CAPABILITIES.map((cap, i) => (
+                  {aiCapabilities.map((cap, i) => (
                     <div key={i} className="flex items-center gap-3">
                       <Check className="w-4 h-4 text-neutral-500 flex-shrink-0" />
                       <span className="text-sm text-neutral-400">{cap}</span>
@@ -320,10 +256,10 @@ export default function Home() {
               </div>
 
               <p className="text-neutral-400 leading-relaxed mb-2">
-                כל זאת באמצעות שפה טבעית וללא צורך בהכשרה.
+                {t("home.sections.product.naturalLanguage")}
               </p>
               <p className="text-white font-bold text-lg">
-                התוצאה היא מערכת שמאפשרת לנהל מערכי מצלמות מורכבים בפשטות חסרת תקדים.
+                {t("home.sections.product.result")}
               </p>
             </div>
           </div>
@@ -335,44 +271,47 @@ export default function Home() {
             <div className="text-center mb-14">
               <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold border border-neutral-200 rounded-full px-3 py-1 mb-6">
                 <Users className="w-3 h-3" />
-                <span>הנהלת החברה</span>
+                <span>{t("home.sections.team.badge")}</span>
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight">
-                הצוות שמוביל את Ghost.
+                {t("home.sections.team.title")}
               </h2>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {TEAM_MEMBERS.map((member, i) => (
-                <div key={i} className="group border border-neutral-200 rounded-2xl overflow-hidden bg-white">
-                  {member.image ? (
-                    <div className="aspect-[4/5] relative bg-neutral-200 overflow-hidden">
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        fill
-                        style={{ objectPosition: member.imagePosition ?? "center" }}
-                        className="object-cover grayscale scale-100 brightness-[0.75] transition-all duration-700 ease-out group-hover:scale-[1.04] group-hover:brightness-100"
-                      />
-                    </div>
-                  ) : (
-                    <div className="aspect-[4/5] bg-neutral-200" />
-                  )}
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold mb-1">{member.name}</h3>
-                    <p className="text-sm text-neutral-400 font-bold mb-3">{member.role}</p>
-                    {member.ghostTyping ? (
-                      <GhostTypingText
-                        text={member.bio}
-                        className="text-sm text-neutral-500 leading-relaxed"
-                        charDelay={40}
-                      />
+              {teamMembers.map((member, i) => {
+                const images = TEAM_IMAGES[i];
+                return (
+                  <div key={i} className="group border border-neutral-200 rounded-2xl overflow-hidden bg-white">
+                    {images?.image ? (
+                      <div className="aspect-[4/5] relative bg-neutral-200 overflow-hidden">
+                        <Image
+                          src={images.image}
+                          alt={member.name}
+                          fill
+                          style={{ objectPosition: images.imagePosition ?? "center" }}
+                          className="object-cover grayscale scale-100 brightness-[0.75] transition-all duration-700 ease-out group-hover:scale-[1.04] group-hover:brightness-100"
+                        />
+                      </div>
                     ) : (
-                      <p className="text-sm text-neutral-500 leading-relaxed">{member.bio}</p>
+                      <div className="aspect-[4/5] bg-neutral-200" />
                     )}
+                    <div className="p-6">
+                      <h3 className="text-lg font-bold mb-1">{member.name}</h3>
+                      <p className="text-sm text-neutral-400 font-bold mb-3">{member.role}</p>
+                      {images?.ghostTyping ? (
+                        <GhostTypingText
+                          text={member.bio}
+                          className="text-sm text-neutral-500 leading-relaxed"
+                          charDelay={40}
+                        />
+                      ) : (
+                        <p className="text-sm text-neutral-500 leading-relaxed">{member.bio}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -382,18 +321,18 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 py-24 lg:py-32">
             <div className="text-center mb-14">
               <div className="inline-block text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold border border-neutral-200 rounded-full px-3 py-1 mb-6">
-                יועצים ושותפים אסטרטגיים
+                {t("home.sections.advisors.badge")}
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-4">
-                הידע שמאחורי Ghost.
+                {t("home.sections.advisors.title")}
               </h2>
               <p className="text-neutral-500 max-w-2xl mx-auto leading-relaxed">
-                לאורך דרכה גייסה Ghost צוות יועצים מבכירי המשק הישראלי, העסקי והממשלתי.
+                {t("home.sections.advisors.description")}
               </p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
-              {ADVISORS.map((advisor, i) => (
+              {advisors.map((advisor, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm text-neutral-600 bg-white border border-neutral-200 rounded-full px-4 py-2">
                   <Check className="w-3.5 h-3.5 text-neutral-400" />
                   {advisor}
@@ -402,7 +341,7 @@ export default function Home() {
             </div>
 
             <p className="text-center text-neutral-500 leading-relaxed max-w-2xl mx-auto">
-              הידע והניסיון של צוות היועצים מסייעים לחברה לפתח פתרונות מתקדמים העונים על אתגרים אמיתיים בתחומי הביטחון, התפעול והניהול של מערכות וידאו בקנה מידה גדול.
+              {t("home.sections.advisors.footer")}
             </p>
           </div>
         </section>
@@ -411,25 +350,25 @@ export default function Home() {
         <section className="border-t border-neutral-200 bg-neutral-950 text-white">
           <div className="max-w-4xl mx-auto px-6 py-28 text-center">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 leading-[1.1]">
-              אנחנו לא יודעים מראש
+              {t("home.sections.cta.title")}
               <br />
-              מה תרצו לבדוק.
+              {t("home.sections.cta.titleLine2")}
               <br />
-              <span className="text-neutral-500">וזה בדיוק העניין.</span>
+              <span className="text-neutral-500">{t("home.sections.cta.titleHighlight")}</span>
             </h2>
             <p className="text-neutral-400 text-lg mt-6 mb-10 max-w-xl mx-auto">
-              Ghost מאפשר למערכת להסתגל למה שחשוב לכם — בשפה טבעית. הדגמה אישית של 15 דקות, ותראו את התוצאות מיד.
+              {t("home.sections.cta.description")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/demo">
                 <Button className="bg-white text-neutral-950 hover:bg-neutral-200 rounded-full h-13 px-8 text-sm font-bold">
-                  הדגמה חינם
+                  {t("common.buttons.freeDemo")}
                   <ArrowLeft className="mr-2 w-4 h-4" />
                 </Button>
               </Link>
               <a href="mailto:hello@ghost-ai.com">
                 <Button variant="outline" className="border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-full h-13 px-8 text-sm">
-                  צרו קשר
+                  {t("common.buttons.contactUs")}
                 </Button>
               </a>
             </div>
@@ -437,16 +376,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-neutral-200 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Image src="/ghost-icon.png" alt="Ghost" width={20} height={20} className="rounded-sm grayscale opacity-40" />
-            <span className="text-xs font-bold tracking-[0.15em] text-neutral-300 uppercase">Ghost</span>
-          </div>
-          <p className="text-xs text-neutral-300">&copy; 2026 Ghost AI. כל הזכויות שמורות.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

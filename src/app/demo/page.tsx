@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Loader2, Plus, Trash2, Download, CheckCircle2, Camera, X, Upload, ImageIcon } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
+import { Navbar } from "@/components/navbar";
 
 interface CameraField {
   name: string;
@@ -18,28 +20,16 @@ interface CameraRec {
   recommendations: string[];
 }
 
-const SECTORS = ["פרטי", "עסקי", "ציבורי", "ממשלתי"];
-
-const FOCUS_OPTIONS = [
-  "אבטחה",
-  "בטחון",
-  "אכיפה",
-  "סדר ונקיון",
-  "מקרי חירום",
-  "אכיפת נהלי עבודה",
-] as const;
-
 const MAX_ADDITION_ROUNDS = 2;
 const MAX_RECOMMENDATIONS_PER_ROUND = 4;
 
-const STEPS = [
-  { id: "contact", label: "פרטי קשר" },
-  { id: "cameras", label: "מצלמות" },
-  { id: "loading", label: "ניתוח" },
-  { id: "results", label: "המלצות" },
-];
-
 export default function DemoPage() {
+  const { t, tArray } = useTranslation();
+
+  const steps = tArray<{ id: string; label: string }>("demo.steps");
+  const sectors = tArray<string>("demo.sectors");
+  const focusOptions = tArray<string>("demo.focusOptions");
+
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -51,7 +41,7 @@ export default function DemoPage() {
   const [error, setError] = useState<string | null>(null);
   const [additionRoundsLeft, setAdditionRoundsLeft] = useState(MAX_ADDITION_ROUNDS);
   const [addMoreOpen, setAddMoreOpen] = useState(false);
-  const [addMoreFocus, setAddMoreFocus] = useState<string>(FOCUS_OPTIONS[0]);
+  const [addMoreFocus, setAddMoreFocus] = useState("");
   const [addMoreCustom, setAddMoreCustom] = useState("");
   const [addMoreLoading, setAddMoreLoading] = useState(false);
   const [addMoreError, setAddMoreError] = useState<string | null>(null);
@@ -92,10 +82,10 @@ export default function DemoPage() {
       formData.append("image", file);
       const res = await fetch("/api/analyze-camera-image", { method: "POST", body: formData });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "שגיאה בניתוח התמונה");
+      if (!res.ok) throw new Error(data.error || t("demo.cameras.imageError"));
       updateCamera(index, "watchesOn", data.description ?? "");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "שגיאה בניתוח תמונה");
+      setError(err instanceof Error ? err.message : t("demo.errors.imageAnalysisError"));
     } finally {
       setAnalyzingImageIndex(null);
     }
@@ -114,11 +104,11 @@ export default function DemoPage() {
         body: JSON.stringify({ sector, orgType, cameras: cameras.map(({ name, watchesOn }) => ({ name, watchesOn })) }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "שגיאה בניתוח");
+      if (!res.ok) throw new Error(data.error || t("demo.errors.analysisError"));
       setResults(data.cameras);
       setStep(3);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "שגיאה לא צפויה");
+      setError(err instanceof Error ? err.message : t("demo.errors.unexpectedError"));
       setStep(1);
     }
   };
@@ -136,9 +126,10 @@ export default function DemoPage() {
 
   const handleAddMore = async () => {
     if (!results || additionRoundsLeft <= 0) return;
-    const focusText = addMoreFocus === "התאמה אישית" ? addMoreCustom.trim() : addMoreFocus;
+    const selectedFocus = addMoreFocus || focusOptions[0] || "";
+    const focusText = selectedFocus === t("demo.results.custom") ? addMoreCustom.trim() : selectedFocus;
     if (!focusText) {
-      setAddMoreError("נא לבחור מיקוד או להזין טקסט.");
+      setAddMoreError(t("demo.results.selectFocusError"));
       return;
     }
     setAddMoreError(null);
@@ -156,7 +147,7 @@ export default function DemoPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "שגיאה בהוספת המלצות");
+      if (!res.ok) throw new Error(data.error || t("demo.errors.addMoreError"));
       const newCameras: CameraRec[] = data.cameras ?? [];
       setResults((prev) => {
         if (!prev) return prev;
@@ -171,7 +162,7 @@ export default function DemoPage() {
       setAddMoreOpen(false);
       setAddMoreCustom("");
     } catch (err) {
-      setAddMoreError(err instanceof Error ? err.message : "שגיאה לא צפויה");
+      setAddMoreError(err instanceof Error ? err.message : t("demo.errors.unexpectedError"));
     } finally {
       setAddMoreLoading(false);
     }
@@ -183,39 +174,14 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-white text-neutral-950">
-      {/* Navbar */}
-      <nav className="border-b border-neutral-100 bg-white/80 backdrop-blur-md sticky top-0 z-50 no-print">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image src="/ghost-icon.png" alt="Ghost" width={38} height={38} className="rounded-lg" />
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-neutral-500">
-            <Link href="/#msg1" className="hover:text-neutral-950 transition-colors">ניווט</Link>
-            <Link href="/#msg2" className="hover:text-neutral-950 transition-colors">שיחה</Link>
-            <Link href="/#msg3" className="hover:text-neutral-950 transition-colors">בדיקות</Link>
-            <Link href="/#msg4" className="hover:text-neutral-950 transition-colors">התראות</Link>
-            <Link href="/about" className="hover:text-neutral-950 transition-colors">הסיפור שלנו</Link>
-            <Link href="/careers" className="hover:text-neutral-950 transition-colors">קריירה</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/partners/login">
-              <Button variant="outline" className="border-neutral-300 text-neutral-600 hover:bg-neutral-50 rounded-full h-9 px-4 text-xs">
-                כניסה למפיצים
-              </Button>
-            </Link>
-            <Link href="/demo">
-              <Button className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-9 px-5 text-xs font-bold">
-                קבע הדגמה
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <div className="no-print">
+        <Navbar />
+      </div>
 
       <div className="max-w-3xl mx-auto px-6 py-12">
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-2 mb-14 no-print">
-          {STEPS.map((s, i) => (
+          {steps.map((s, i) => (
             <div key={s.id} className="flex items-center gap-2">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors ${
                 i < step ? "bg-neutral-950 text-white" : i === step ? "border-2 border-neutral-950 text-neutral-950" : "border border-neutral-200 text-neutral-300"
@@ -223,7 +189,7 @@ export default function DemoPage() {
                 {i < step ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
               </div>
               <span className={`text-xs hidden sm:block ${i === step ? "font-bold" : "text-neutral-400"}`}>{s.label}</span>
-              {i < STEPS.length - 1 && <div className="w-8 h-px bg-neutral-200" />}
+              {i < steps.length - 1 && <div className="w-8 h-px bg-neutral-200" />}
             </div>
           ))}
         </div>
@@ -231,42 +197,42 @@ export default function DemoPage() {
         {/* Step 0: Contact */}
         {step === 0 && (
           <div>
-            <h1 className="text-2xl font-bold mb-2">קבע הדגמה</h1>
-            <p className="text-neutral-500 text-sm mb-8">מלא את הפרטים שלך ונפיק עבורך המלצות שימוש אישיות למצלמות.</p>
+            <h1 className="text-2xl font-bold mb-2">{t("demo.contact.title")}</h1>
+            <p className="text-neutral-500 text-sm mb-8">{t("demo.contact.description")}</p>
 
             <div className="space-y-5">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>שם מלא</label>
+                  <label className={labelClass}>{t("demo.contact.fullName")}</label>
                   <input type="text" className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required />
                 </div>
                 <div>
-                  <label className={labelClass}>טלפון</label>
+                  <label className={labelClass}>{t("demo.contact.phone")}</label>
                   <input type="tel" className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} required />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>אימייל</label>
+                <label className={labelClass}>{t("demo.contact.email")}</label>
                 <input type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>סקטור</label>
+                  <label className={labelClass}>{t("demo.contact.sector")}</label>
                   <select className={inputClass} value={sector} onChange={(e) => setSector(e.target.value)} required>
-                    <option value="">בחר סקטור</option>
-                    {SECTORS.map((s) => (<option key={s} value={s}>{s}</option>))}
+                    <option value="">{t("demo.contact.selectSector")}</option>
+                    {sectors.map((s) => (<option key={s} value={s}>{s}</option>))}
                   </select>
                 </div>
                 <div>
-                  <label className={labelClass}>סוג ארגון / עסק</label>
-                  <input type="text" className={inputClass} value={orgType} onChange={(e) => setOrgType(e.target.value)} placeholder="לדוגמה: רשת חנויות, מפעל, בית חולים..." required />
+                  <label className={labelClass}>{t("demo.contact.orgType")}</label>
+                  <input type="text" className={inputClass} value={orgType} onChange={(e) => setOrgType(e.target.value)} placeholder={t("demo.contact.orgTypePlaceholder")} required />
                 </div>
               </div>
             </div>
 
             <div className="mt-8 flex justify-start">
               <Button disabled={!isStep1Valid} onClick={() => setStep(1)} className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-11 px-8 text-sm font-bold disabled:opacity-30">
-                המשך למצלמות
+                {t("demo.contact.continueButton")}
               </Button>
             </div>
           </div>
@@ -275,9 +241,9 @@ export default function DemoPage() {
         {/* Step 1: Cameras */}
         {step === 1 && (
           <div>
-            <h1 className="text-2xl font-bold mb-2">המצלמות שלך</h1>
+            <h1 className="text-2xl font-bold mb-2">{t("demo.cameras.title")}</h1>
             <p className="text-neutral-500 text-sm mb-8">
-              הוסף את המצלמות שלך. לכל מצלמה, ציין את שמה ועל מה היא צופה.
+              {t("demo.cameras.description")}
             </p>
 
             {error && (
@@ -290,7 +256,7 @@ export default function DemoPage() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Camera className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
-                      <span className="text-xs font-bold text-neutral-400">מצלמה {i + 1}</span>
+                      <span className="text-xs font-bold text-neutral-400">{t("demo.cameras.cameraLabel")} {i + 1}</span>
                     </div>
                     {cameras.length > 1 && (
                       <button onClick={() => removeCamera(i)} className="text-neutral-300 hover:text-neutral-500 transition-colors">
@@ -300,16 +266,16 @@ export default function DemoPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
-                      <label className={labelClass}>שם המצלמה</label>
-                      <input type="text" className={inputClass} value={cam.name} onChange={(e) => updateCamera(i, "name", e.target.value)} placeholder="לדוגמה: כניסה ראשית" />
+                      <label className={labelClass}>{t("demo.cameras.cameraName")}</label>
+                      <input type="text" className={inputClass} value={cam.name} onChange={(e) => updateCamera(i, "name", e.target.value)} placeholder={t("demo.cameras.cameraNamePlaceholder")} />
                     </div>
                     <div>
-                      <label className={labelClass}>צופה על</label>
-                      <input type="text" className={inputClass} value={cam.watchesOn} onChange={(e) => updateCamera(i, "watchesOn", e.target.value)} placeholder="לדוגמה: דלת הכניסה והקופה או העלה תמונה לניתוח" />
+                      <label className={labelClass}>{t("demo.cameras.watchesOn")}</label>
+                      <input type="text" className={inputClass} value={cam.watchesOn} onChange={(e) => updateCamera(i, "watchesOn", e.target.value)} placeholder={t("demo.cameras.watchesOnPlaceholder")} />
                     </div>
                   </div>
                   <div className="mt-3 pt-3 border-t border-neutral-100">
-                    <label className={labelClass}>אופציונלי: צילום מסך מהפיד</label>
+                    <label className={labelClass}>{t("demo.cameras.optionalScreenshot")}</label>
                     <div className="flex flex-wrap items-center gap-3">
                       <input
                         type="file"
@@ -323,13 +289,13 @@ export default function DemoPage() {
                         }}
                       />
                       <label htmlFor={`camera-image-${i}`} className="cursor-pointer inline-flex items-center gap-2 text-xs font-bold text-neutral-500 hover:text-neutral-700 border border-neutral-200 rounded-lg px-3 py-2 transition-colors">
-                        <Upload className="w-4 h-4" /> העלה תמונה
+                        <Upload className="w-4 h-4" /> {t("demo.cameras.uploadImage")}
                       </label>
                       {cam.imagePreviewUrl && (
                         <>
                           <div className="relative w-16 h-16 rounded-lg border border-neutral-200 overflow-hidden bg-neutral-50 flex-shrink-0">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={cam.imagePreviewUrl} alt="תצוגה מקדימה" className="w-full h-full object-cover" />
+                            <img src={cam.imagePreviewUrl} alt={t("demo.cameras.imagePreview")} className="w-full h-full object-cover" />
                           </div>
                           <Button
                             type="button"
@@ -340,9 +306,9 @@ export default function DemoPage() {
                             className="rounded-full h-8 px-4 text-xs gap-1.5 border-neutral-300"
                           >
                             {analyzingImageIndex === i ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                            {analyzingImageIndex === i ? "מנתח..." : "נתח תמונה ומלא אוטומטית"}
+                            {analyzingImageIndex === i ? t("demo.cameras.analyzing") : t("demo.cameras.analyzeImage")}
                           </Button>
-                          <button type="button" onClick={() => setCameraImage(i, null)} className="text-neutral-400 hover:text-neutral-600 text-xs p-1" aria-label="הסר תמונה">
+                          <button type="button" onClick={() => setCameraImage(i, null)} className="text-neutral-400 hover:text-neutral-600 text-xs p-1" aria-label={t("demo.cameras.removeImage")}>
                             <X className="w-4 h-4" />
                           </button>
                         </>
@@ -354,15 +320,15 @@ export default function DemoPage() {
             </div>
 
             <button onClick={addCamera} className="mt-4 flex items-center gap-2 text-xs font-bold text-neutral-400 hover:text-neutral-600 transition-colors">
-              <Plus className="w-4 h-4" /> הוסף מצלמה
+              <Plus className="w-4 h-4" /> {t("demo.cameras.addCamera")}
             </button>
 
             <div className="mt-8 flex items-center gap-3">
               <Button onClick={() => setStep(0)} variant="outline" className="border-neutral-300 text-neutral-600 rounded-full h-11 px-6 text-sm">
-                חזרה
+                {t("common.buttons.back")}
               </Button>
               <Button disabled={!isStep2Valid} onClick={handleSubmit} className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-11 px-8 text-sm font-bold disabled:opacity-30">
-                שלח וקבל המלצות
+                {t("demo.cameras.submitButton")}
               </Button>
             </div>
           </div>
@@ -372,8 +338,8 @@ export default function DemoPage() {
         {step === 2 && (
           <div className="text-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-neutral-400 mx-auto mb-6" />
-            <h2 className="text-xl font-bold mb-2">Ghost מנתח את המצלמות שלך</h2>
-            <p className="text-sm text-neutral-500">מפיק המלצות שימוש אישיות...</p>
+            <h2 className="text-xl font-bold mb-2">{t("demo.loading.title")}</h2>
+            <p className="text-sm text-neutral-500">{t("demo.loading.description")}</p>
           </div>
         )}
 
@@ -382,17 +348,17 @@ export default function DemoPage() {
           <div>
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8 no-print">
               <div>
-                <h1 className="text-2xl font-bold mb-1">המלצות שימוש אישיות</h1>
-                <p className="text-sm text-neutral-500">{orgType} &middot; {sector} &middot; {results.length} מצלמות</p>
+                <h1 className="text-2xl font-bold mb-1">{t("demo.results.title")}</h1>
+                <p className="text-sm text-neutral-500">{orgType} &middot; {sector} &middot; {results.length} {t("demo.results.cameras")}</p>
               </div>
               <div className="flex items-center gap-2">
                 {additionRoundsLeft > 0 && (
                   <Button onClick={() => setAddMoreOpen(true)} variant="outline" className="border-neutral-300 rounded-full h-10 px-5 text-xs font-bold gap-2">
-                    <Plus className="w-4 h-4" /> הוסף המלצות (נותרו {additionRoundsLeft} סבבים)
+                    <Plus className="w-4 h-4" /> {t("demo.results.addMore")} ({t("demo.results.roundsLeft").replace("{count}", String(additionRoundsLeft))})
                   </Button>
                 )}
                 <Button onClick={() => window.print()} variant="outline" className="border-neutral-300 rounded-full h-10 px-5 text-xs font-bold gap-2">
-                  <Download className="w-4 h-4" /> הורד PDF
+                  <Download className="w-4 h-4" /> {t("demo.results.downloadPDF")}
                 </Button>
               </div>
             </div>
@@ -402,30 +368,30 @@ export default function DemoPage() {
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 no-print" role="dialog" aria-modal="true">
                 <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-neutral-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold">הוסף המלצות (עד {MAX_RECOMMENDATIONS_PER_ROUND} בסבב)</h3>
+                    <h3 className="font-bold">{t("demo.results.addMoreTitle").replace("{count}", String(MAX_RECOMMENDATIONS_PER_ROUND))}</h3>
                     <button onClick={() => { setAddMoreOpen(false); setAddMoreError(null); }} className="p-1 text-neutral-400 hover:text-neutral-600">
                       <X className="w-5 h-5" />
                     </button>
                   </div>
-                  <p className="text-xs text-neutral-500 mb-4">בחר מיקוד להמלצות הנוספות או הזן בעצמך.</p>
+                  <p className="text-xs text-neutral-500 mb-4">{t("demo.results.addMoreDesc")}</p>
                   <div className="space-y-3 mb-4">
-                    <label className={labelClass}>מיקוד</label>
-                    <select className={inputClass} value={addMoreFocus} onChange={(e) => setAddMoreFocus(e.target.value)}>
-                      {FOCUS_OPTIONS.map((opt) => (
+                    <label className={labelClass}>{t("demo.results.focus")}</label>
+                    <select className={inputClass} value={addMoreFocus || focusOptions[0] || ""} onChange={(e) => setAddMoreFocus(e.target.value)}>
+                      {focusOptions.map((opt) => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
-                      <option value="התאמה אישית">התאמה אישית</option>
+                      <option value={t("demo.results.custom")}>{t("demo.results.custom")}</option>
                     </select>
-                    {addMoreFocus === "התאמה אישית" && (
-                      <input type="text" className={inputClass} value={addMoreCustom} onChange={(e) => setAddMoreCustom(e.target.value)} placeholder="במה להתמקד בהמלצות הבאות?" />
+                    {(addMoreFocus || focusOptions[0]) === t("demo.results.custom") && (
+                      <input type="text" className={inputClass} value={addMoreCustom} onChange={(e) => setAddMoreCustom(e.target.value)} placeholder={t("demo.results.customPlaceholder")} />
                     )}
                   </div>
                   {addMoreError && <p className="text-sm text-red-600 mb-3">{addMoreError}</p>}
                   <div className="flex gap-2 justify-end">
-                    <Button variant="outline" onClick={() => { setAddMoreOpen(false); setAddMoreError(null); }} className="rounded-full text-sm">ביטול</Button>
+                    <Button variant="outline" onClick={() => { setAddMoreOpen(false); setAddMoreError(null); }} className="rounded-full text-sm">{t("common.buttons.cancel")}</Button>
                     <Button onClick={handleAddMore} disabled={addMoreLoading} className="bg-neutral-950 text-white rounded-full text-sm gap-2">
                       {addMoreLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                      הוסף עד {MAX_RECOMMENDATIONS_PER_ROUND} המלצות
+                      {t("demo.results.addButton").replace("{count}", String(MAX_RECOMMENDATIONS_PER_ROUND))}
                     </Button>
                   </div>
                 </div>
@@ -438,8 +404,8 @@ export default function DemoPage() {
                 <Image src="/ICON_GHOST.jpg" alt="Ghost" width={32} height={32} className="rounded-md" />
                 <span className="text-lg font-bold tracking-[0.2em] uppercase">Ghost</span>
               </div>
-              <h1 className="text-xl font-bold mb-1">המלצות שימוש אישיות</h1>
-              <p className="text-sm text-neutral-500">{name} &middot; {orgType} &middot; {sector} &middot; {results.length} מצלמות</p>
+              <h1 className="text-xl font-bold mb-1">{t("demo.results.title")}</h1>
+              <p className="text-sm text-neutral-500">{name} &middot; {orgType} &middot; {sector} &middot; {results.length} {t("demo.results.cameras")}</p>
               <div className="border-b border-neutral-200 mt-4" />
             </div>
 
@@ -457,7 +423,7 @@ export default function DemoPage() {
                       <div key={ri} className="flex items-start gap-2.5 text-sm group">
                         <div className="w-1 h-1 rounded-full bg-neutral-950 mt-2 flex-shrink-0" />
                         <span className="text-neutral-700 leading-relaxed flex-1">{rec}</span>
-                        <button type="button" onClick={() => removeRecommendation(ci, ri)} className="opacity-50 hover:opacity-100 p-1 text-neutral-400 hover:text-red-600 transition-all flex-shrink-0 no-print" aria-label="מחק המלצה">
+                        <button type="button" onClick={() => removeRecommendation(ci, ri)} className="opacity-50 hover:opacity-100 p-1 text-neutral-400 hover:text-red-600 transition-all flex-shrink-0 no-print" aria-label={t("demo.results.deleteRec")}>
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -468,9 +434,9 @@ export default function DemoPage() {
             </div>
 
             <div className="mt-10 text-center no-print">
-              <p className="text-sm text-neutral-400 mb-4">הפנייה שלך התקבלה. ניצור קשר בהקדם.</p>
+              <p className="text-sm text-neutral-400 mb-4">{t("demo.results.referralReceived")}</p>
               <Link href="/" className="text-xs font-bold text-neutral-500 hover:text-neutral-950 transition-colors">
-                חזרה לעמוד הבית
+                {t("common.buttons.backToHome")}
               </Link>
             </div>
           </div>
