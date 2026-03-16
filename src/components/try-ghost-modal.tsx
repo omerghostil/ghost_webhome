@@ -22,6 +22,7 @@ import {
   FULL_INTERVAL_MS,
 } from "@/lib/ghost-memory-engine";
 import { generateGhostPdf } from "@/lib/generate-ghost-pdf";
+import { readSafeJson } from "@/lib/safe-json-response";
 
 const AUTO_REDIRECT_MESSAGE_COUNT = 8;
 
@@ -131,7 +132,10 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
             body: JSON.stringify({ image: result.dataUrl, mode: "quick", previousContext: lastDesc }),
           });
           if (res.ok) {
-            const { description } = await res.json();
+            const { description } = await readSafeJson<{ description?: string }>(res);
+            if (!description) {
+              return;
+            }
             const entry: MemoryEntry = { timestamp: formatTimestamp(), type: "change_detected", description };
             memoryLogRef.current = [...memoryLogRef.current, entry];
             setMemoryLog((prev) => [...prev, entry]);
@@ -155,7 +159,10 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
         body: JSON.stringify({ image: result.dataUrl, mode: "full" }),
       });
       if (res.ok) {
-        const { description } = await res.json();
+        const { description } = await readSafeJson<{ description?: string }>(res);
+        if (!description) {
+          return;
+        }
         const entry: MemoryEntry = { timestamp: formatTimestamp(), type: "routine", description };
         memoryLogRef.current = [...memoryLogRef.current, entry];
         setMemoryLog((prev) => [...prev, entry]);
@@ -191,8 +198,8 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
 
       let answer: string;
       if (res.ok) {
-        const data = await res.json();
-        answer = data.answer;
+        const data = await readSafeJson<{ answer?: string }>(res);
+        answer = data.answer ?? "שגיאה בתקשורת עם Ghost Brain. נסה שוב.";
       } else {
         answer = "שגיאה בתקשורת עם Ghost Brain. נסה שוב.";
       }
@@ -243,10 +250,10 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={handleClose} />
 
-      <div className="relative z-10 bg-neutral-950 rounded-2xl overflow-hidden w-full max-w-5xl max-h-[95vh] flex flex-col lg:flex-row shadow-2xl border border-neutral-800">
+      <div className="relative z-10 bg-neutral-950 sm:rounded-2xl overflow-hidden w-full sm:max-w-5xl h-full sm:h-auto sm:max-h-[95vh] flex flex-col lg:flex-row shadow-2xl sm:border border-neutral-800 safe-top">
         {/* Video panel */}
         <div className="relative w-full lg:w-[55%] bg-black aspect-video lg:aspect-auto lg:min-h-[500px] flex-shrink-0">
           <video
@@ -318,9 +325,9 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
               )}
               <button
                 onClick={handleClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-800 transition-colors text-neutral-500 hover:text-white"
+                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-neutral-800 active:scale-95 transition-all text-neutral-500 hover:text-white"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -361,7 +368,7 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
           </div>
 
           {/* Input */}
-          <div className="px-4 py-3 border-t border-neutral-800 flex-shrink-0">
+          <div className="px-4 py-3 border-t border-neutral-800 flex-shrink-0 safe-bottom">
             <div className="flex gap-2 items-center bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-1.5">
               <input
                 type="text"

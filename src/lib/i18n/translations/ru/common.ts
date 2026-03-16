@@ -7,6 +7,7 @@ export const ruCommon = {
     ourStory: "Наша история",
     careers: "Карьера",
     distributorLogin: "Вход для дистрибьюторов",
+    login: "Login",
     bookDemo: "Записаться на демо",
     home: "Главная",
     distributorPortal: "Портал дистрибьюторов",

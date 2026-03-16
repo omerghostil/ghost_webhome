@@ -5,6 +5,7 @@ import { heCareers } from "./careers";
 import { heDemo } from "./demo";
 import { hePartners } from "./partners";
 import { heComponents } from "./components";
+import { heLogin } from "./login";
 
 export const he = {
   common: heCommon,
@@ -14,4 +15,5 @@ export const he = {
   demo: heDemo,
   partners: hePartners,
   components: heComponents,
+  login: heLogin,
 };

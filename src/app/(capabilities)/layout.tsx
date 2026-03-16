@@ -1,7 +1,7 @@
 "use client";
 
 import { Navbar } from "@/components/navbar";
-import { CapabilitiesSidebar } from "@/components/capabilities-sidebar";
+import { CapabilitiesSidebar, CapabilitiesMobileToggle } from "@/components/capabilities-sidebar";
 
 export default function CapabilitiesLayout({
   children,
@@ -18,6 +18,8 @@ export default function CapabilitiesLayout({
           {children}
         </main>
       </div>
+
+      <CapabilitiesMobileToggle />
     </div>
   );
 }

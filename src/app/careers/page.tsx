@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,8 @@ import {
   Mail,
 } from "lucide-react";
 import { CareersJobCard } from "@/components/careers-job-card";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 const STATS = [
   { value: "2024", label: "שנת הקמה" },
@@ -139,34 +143,7 @@ const JOB_POSITIONS: JobPosition[] = [
 export default function CareersPage() {
   return (
     <div className="min-h-screen bg-white text-neutral-950 selection:bg-neutral-200">
-      {/* Navbar */}
-      <nav className="border-b border-neutral-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image src="/ghost-icon.png" alt="Ghost" width={38} height={38} className="rounded-lg" />
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-neutral-500">
-            <Link href="/#msg1" className="hover:text-neutral-950 transition-colors">ניווט</Link>
-            <Link href="/#msg2" className="hover:text-neutral-950 transition-colors">שיחה</Link>
-            <Link href="/#msg3" className="hover:text-neutral-950 transition-colors">בדיקות</Link>
-            <Link href="/#msg4" className="hover:text-neutral-950 transition-colors">התראות</Link>
-            <Link href="/about" className="hover:text-neutral-950 transition-colors">הסיפור שלנו</Link>
-            <Link href="/careers" className="hover:text-neutral-950 transition-colors">קריירה</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/partners/login">
-              <Button variant="outline" className="border-neutral-300 text-neutral-600 hover:bg-neutral-50 rounded-full h-9 px-4 text-xs">
-                כניסה למפיצים
-              </Button>
-            </Link>
-            <Link href="/demo">
-              <Button className="bg-neutral-950 text-white hover:bg-neutral-800 rounded-full h-9 px-5 text-xs font-bold">
-                קבע הדגמה
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main>
         {/* ── HERO ── */}
@@ -310,26 +287,7 @@ export default function CareersPage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-neutral-200 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/ICON_GHOST.jpg"
-              alt="Ghost"
-              width={20}
-              height={20}
-              className="rounded-sm grayscale opacity-40"
-            />
-            <span className="text-xs font-bold tracking-[0.15em] text-neutral-300 uppercase">
-              Ghost
-            </span>
-          </div>
-          <p className="text-xs text-neutral-300">
-            &copy; 2026 Ghost AI. כל הזכויות שמורות.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Miriam_Libre, Rubik } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n";
 import { LanguageSelector } from "@/components/language-selector";
+import { TryGhostWrapper } from "@/components/try-ghost-wrapper";
 
 const miriamLibre = Miriam_Libre({
   weight: ["400", "700"],
@@ -16,9 +17,27 @@ const rubik = Rubik({
   variable: "--font-rubik",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#000000",
+};
+
 export const metadata: Metadata = {
   title: "Ghost | Camera Chat",
   description: "Stop scrolling. Start talking to your cameras.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Ghost",
+  },
+  icons: {
+    apple: "/ghost-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -34,6 +53,7 @@ export default function RootLayout({
         <LanguageProvider>
           <LanguageSelector />
           {children}
+          <TryGhostWrapper />
         </LanguageProvider>
       </body>
     </html>

@@ -31,6 +31,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (stored && stored in LANGUAGES) {
       setLanguageState(stored);
       setHasChosenLanguage(true);
+      const config = LANGUAGES[stored];
+      document.documentElement.lang = config.code;
+      document.documentElement.dir = config.dir;
     }
     setIsReady(true);
   }, []);

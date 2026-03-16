@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { History, Radio, Bell, ArrowRight } from "lucide-react";
+import { History, Radio, Bell, ArrowRight, LayoutGrid } from "lucide-react";
+import { MobileDrawer } from "@/components/mobile-drawer";
 
 const CAPABILITIES = [
   {
@@ -31,13 +33,14 @@ const CAPABILITIES = [
   },
 ];
 
-export function CapabilitiesSidebar() {
+function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 sticky top-16 h-[calc(100vh-4rem)] border-l border-neutral-100 py-6 px-5 hidden lg:block overflow-y-auto flex-shrink-0">
+    <>
       <Link
         href="/"
+        onClick={onNavClick}
         className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-600 transition-colors mb-8"
       >
         <ArrowRight className="w-3 h-3" />
@@ -71,6 +74,7 @@ export function CapabilitiesSidebar() {
             <Link
               key={cap.id}
               href={cap.href}
+              onClick={onNavClick}
               className={`block p-3 rounded-xl transition-colors ${
                 isActive
                   ? "bg-neutral-950 text-white"
@@ -88,6 +92,36 @@ export function CapabilitiesSidebar() {
           );
         })}
       </nav>
+    </>
+  );
+}
+
+export function CapabilitiesSidebar() {
+  return (
+    <aside className="w-60 sticky top-16 h-[calc(100vh-4rem)] border-l border-neutral-100 py-6 px-5 hidden lg:block overflow-y-auto flex-shrink-0">
+      <SidebarContent />
     </aside>
+  );
+}
+
+export function CapabilitiesMobileToggle() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="lg:hidden fixed bottom-20 right-4 z-40 w-12 h-12 rounded-full bg-neutral-950 text-white shadow-lg shadow-neutral-950/20 flex items-center justify-center active:scale-95 transition-transform md:bottom-6"
+        aria-label="Open capabilities menu"
+      >
+        <LayoutGrid className="w-5 h-5" />
+      </button>
+
+      <MobileDrawer isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <div className="py-4 px-5">
+          <SidebarContent onNavClick={() => setIsOpen(false)} />
+        </div>
+      </MobileDrawer>
+    </>
   );
 }

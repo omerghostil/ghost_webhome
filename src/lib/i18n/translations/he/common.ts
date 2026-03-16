@@ -7,6 +7,7 @@ export const heCommon = {
     ourStory: "הסיפור שלנו",
     careers: "קריירה",
     distributorLogin: "כניסה למפיצים",
+    login: "Login",
     bookDemo: "קבע הדגמה",
     home: "ראשי",
     distributorPortal: "פורטל מפיצים",

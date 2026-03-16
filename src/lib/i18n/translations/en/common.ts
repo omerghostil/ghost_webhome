@@ -7,6 +7,7 @@ export const enCommon = {
     ourStory: "Our Story",
     careers: "Careers",
     distributorLogin: "Distributor Login",
+    login: "Login",
     bookDemo: "Book a Demo",
     home: "Home",
     distributorPortal: "Distributor Portal",

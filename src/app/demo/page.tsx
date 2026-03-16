@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Plus, Trash2, Download, CheckCircle2, Camera, X, Upload, ImageIcon } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { Navbar } from "@/components/navbar";
+import { getApiErrorMessage, readSafeJson } from "@/lib/safe-json-response";
 
 interface CameraField {
   name: string;
@@ -81,8 +82,8 @@ export default function DemoPage() {
       const formData = new FormData();
       formData.append("image", file);
       const res = await fetch("/api/analyze-camera-image", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t("demo.cameras.imageError"));
+      const data = await readSafeJson<{ error?: string; description?: string }>(res);
+      if (!res.ok) throw new Error(getApiErrorMessage(data) || t("demo.cameras.imageError"));
       updateCamera(index, "watchesOn", data.description ?? "");
     } catch (err) {
       setError(err instanceof Error ? err.message : t("demo.errors.imageAnalysisError"));
@@ -103,9 +104,9 @@ export default function DemoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sector, orgType, cameras: cameras.map(({ name, watchesOn }) => ({ name, watchesOn })) }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t("demo.errors.analysisError"));
-      setResults(data.cameras);
+      const data = await readSafeJson<{ error?: string; cameras?: CameraRec[] }>(res);
+      if (!res.ok) throw new Error(getApiErrorMessage(data) || t("demo.errors.analysisError"));
+      setResults(data.cameras ?? null);
       setStep(3);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("demo.errors.unexpectedError"));
@@ -146,8 +147,8 @@ export default function DemoPage() {
           focus: focusText,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t("demo.errors.addMoreError"));
+      const data = await readSafeJson<{ error?: string; cameras?: CameraRec[] }>(res);
+      if (!res.ok) throw new Error(getApiErrorMessage(data) || t("demo.errors.addMoreError"));
       const newCameras: CameraRec[] = data.cameras ?? [];
       setResults((prev) => {
         if (!prev) return prev;
@@ -178,7 +179,7 @@ export default function DemoPage() {
         <Navbar />
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-12">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 pb-24 md:pb-12">
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-2 mb-14 no-print">
           {steps.map((s, i) => (

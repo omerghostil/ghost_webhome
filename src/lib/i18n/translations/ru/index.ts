@@ -5,6 +5,7 @@ import { ruCareers } from "./careers";
 import { ruDemo } from "./demo";
 import { ruPartners } from "./partners";
 import { ruComponents } from "./components";
+import { ruLogin } from "./login";
 
 export const ru = {
   common: ruCommon,
@@ -14,4 +15,5 @@ export const ru = {
   demo: ruDemo,
   partners: ruPartners,
   components: ruComponents,
+  login: ruLogin,
 };
