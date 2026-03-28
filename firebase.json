@@ -3,6 +3,10 @@
     "site": "ghost-webhome",
     "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ],
     "headers": [
       {
         "source": "/index.html",

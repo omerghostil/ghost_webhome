@@ -17,6 +17,12 @@ async function callOpenAI(apiKey, body) {
   return res.json();
 }
 
+function requireApiKey() {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw Object.assign(new Error("OPENAI_API_KEY is not configured"), { status: 500 });
+  return key;
+}
+
 function sendError(res, err) {
   const status = err.status || 500;
   const payload = { error: err.message };
@@ -35,7 +41,7 @@ exports.ghostLive = onRequest({ cors: true }, async (req, res) => {
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: "messages array required" });
     }
-    const data = await callOpenAI(process.env.OPENAI_API_KEY, {
+    const data = await callOpenAI(requireApiKey(), {
       model: "gpt-4o",
       messages,
       max_tokens: maxTokens ?? 500,
@@ -81,7 +87,7 @@ exports.ghostMemory = onRequest({ cors: true }, async (req, res) => {
     }
     userContent.push({ type: "image_url", image_url: { url: image } });
 
-    const data = await callOpenAI(process.env.OPENAI_API_KEY, {
+    const data = await callOpenAI(requireApiKey(), {
       model,
       messages: [{ role: "user", content: userContent }],
       max_tokens: maxTokens,
@@ -162,7 +168,7 @@ exports.analyze = onRequest({ cors: true }, async (req, res) => {
   try {
     const body = req.body;
     const userMessage = formatAnalyzeMessage(body);
-    const data = await callOpenAI(process.env.OPENAI_API_KEY, {
+    const data = await callOpenAI(requireApiKey(), {
       model: "gpt-4o",
       messages: [
         { role: "system", content: GHOST_SYSTEM_PROMPT },
@@ -214,7 +220,7 @@ exports.analyzeMore = onRequest({ cors: true }, async (req, res) => {
   try {
     const body = req.body;
     const userMessage = formatAddMoreMessage(body);
-    const data = await callOpenAI(process.env.OPENAI_API_KEY, {
+    const data = await callOpenAI(requireApiKey(), {
       model: "gpt-4o",
       messages: [
         { role: "system", content: GHOST_ADD_MORE_PROMPT },
@@ -244,14 +250,28 @@ function parseMultipart(req) {
     const bb = Busboy({ headers: req.headers });
     let fileBuffer = null;
     let fileType = "image/jpeg";
+    let fileStreamDone = false;
+    let busboyDone = false;
+
+    const tryResolve = () => {
+      if (fileStreamDone && busboyDone) resolve({ fileBuffer, fileType });
+    };
 
     bb.on("file", (_name, stream, info) => {
       const chunks = [];
       fileType = info.mimeType || "image/jpeg";
       stream.on("data", (chunk) => chunks.push(chunk));
-      stream.on("end", () => { fileBuffer = Buffer.concat(chunks); });
+      stream.on("end", () => {
+        fileBuffer = Buffer.concat(chunks);
+        fileStreamDone = true;
+        tryResolve();
+      });
     });
-    bb.on("finish", () => resolve({ fileBuffer, fileType }));
+    bb.on("finish", () => {
+      busboyDone = true;
+      if (!fileBuffer && !fileStreamDone) fileStreamDone = true;
+      tryResolve();
+    });
     bb.on("error", reject);
     bb.end(req.rawBody);
   });
@@ -268,7 +288,7 @@ exports.analyzeCameraImage = onRequest({ cors: true }, async (req, res) => {
     const base64 = fileBuffer.toString("base64");
     const dataUrl = `data:${fileType};base64,${base64}`;
 
-    const data = await callOpenAI(process.env.OPENAI_API_KEY, {
+    const data = await callOpenAI(requireApiKey(), {
       model: "gpt-4o",
       messages: [{
         role: "user",
