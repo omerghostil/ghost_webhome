@@ -195,6 +195,17 @@ html {
   animation: fade-in 0.6s ease-out both;
 }
 
+@keyframes terminal-boot {
+  0% { opacity: 0; filter: brightness(2) contrast(0.5); }
+  30% { opacity: 0.4; filter: brightness(1.5) contrast(0.7); }
+  60% { opacity: 0.8; filter: brightness(1.1) contrast(0.9); }
+  100% { opacity: 1; filter: brightness(1) contrast(1); }
+}
+
+.animate-terminal-boot {
+  animation: terminal-boot 1.2s ease-out both;
+}
+
 html[dir="ltr"] {
   --font-sans: var(--font-rubik);
 }

@@ -27,8 +27,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Ghost | Camera Chat",
-  description: "Stop scrolling. Start talking to your cameras.",
+  title: "Ghost | Camera Intelligence",
+  description: "מערכת ניטור וידאו מבצעית עם צ'אט Vision, מבצעים אוטומטיים וניתוח ציר זמן.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

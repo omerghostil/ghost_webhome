@@ -16,7 +16,7 @@ export function TryGhostButton({ onClick }: TryGhostButtonProps) {
         <span className="absolute w-9 h-9 rounded-full bg-white/10 animate-ping" />
         <Camera className="w-5 h-5 relative z-10" />
       </span>
-      <span>נסו את Ghost — חינם</span>
+      <span>דברו עם ghost</span>
     </button>
   );
 }

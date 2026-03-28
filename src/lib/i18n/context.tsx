@@ -8,7 +8,13 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import { type Language, LANGUAGES, STORAGE_KEY } from "./types";
+import {
+  type Language,
+  LANGUAGES,
+  STORAGE_KEY,
+  LANGUAGE_GATE_VERSION,
+  LANGUAGE_GATE_STORAGE_KEY,
+} from "./types";
 import { getTranslations } from "./translations";
 
 interface LanguageContextValue {
@@ -28,13 +34,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as Language | null;
+    const gateOk =
+      localStorage.getItem(LANGUAGE_GATE_STORAGE_KEY) === LANGUAGE_GATE_VERSION;
+
     if (stored && stored in LANGUAGES) {
       setLanguageState(stored);
-      setHasChosenLanguage(true);
       const config = LANGUAGES[stored];
       document.documentElement.lang = config.code;
       document.documentElement.dir = config.dir;
     }
+
+    setHasChosenLanguage(gateOk);
     setIsReady(true);
   }, []);
 
@@ -42,6 +52,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(lang);
     setHasChosenLanguage(true);
     localStorage.setItem(STORAGE_KEY, lang);
+    localStorage.setItem(LANGUAGE_GATE_STORAGE_KEY, LANGUAGE_GATE_VERSION);
 
     const config = LANGUAGES[lang];
     document.documentElement.lang = config.code;

@@ -50,7 +50,7 @@ export function Navbar({ variant = "default" }: NavbarProps) {
             <div className="hidden md:flex items-center gap-8 text-sm text-neutral-500">
               <Link href="/" className="hover:text-neutral-950 transition-colors">{t("common.nav.home")}</Link>
               <Link href="/about" className="hover:text-neutral-950 transition-colors">{t("common.nav.ourStory")}</Link>
-              <Link href="/partners/login" className="hover:text-neutral-950 transition-colors font-bold text-neutral-950">
+              <Link href="/partners/join" className="hover:text-neutral-950 transition-colors font-bold text-neutral-950">
                 {t("common.nav.distributorPortal")}
               </Link>
             </div>
@@ -69,7 +69,7 @@ export function Navbar({ variant = "default" }: NavbarProps) {
           <div className="py-2">
             <MobileNavLink href="/" onClick={closeMobileMenu}>{t("common.nav.home")}</MobileNavLink>
             <MobileNavLink href="/about" onClick={closeMobileMenu}>{t("common.nav.ourStory")}</MobileNavLink>
-            <MobileNavLink href="/partners/login" onClick={closeMobileMenu}>{t("common.nav.distributorPortal")}</MobileNavLink>
+            <MobileNavLink href="/partners/join" onClick={closeMobileMenu}>{t("common.nav.distributorPortal")}</MobileNavLink>
             <div className="border-t border-neutral-100 my-2" />
             <MobileNavLink href="/demo" onClick={closeMobileMenu}>{t("common.nav.bookDemo")}</MobileNavLink>
           </div>
@@ -95,10 +95,7 @@ export function Navbar({ variant = "default" }: NavbarProps) {
             </Link>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-neutral-500">
-            <a href="/#msg1" className="hover:text-neutral-950 transition-colors">{t("common.nav.navigation")}</a>
-            <a href="/#msg2" className="hover:text-neutral-950 transition-colors">{t("common.nav.chat")}</a>
-            <a href="/#msg3" className="hover:text-neutral-950 transition-colors">{t("common.nav.checks")}</a>
-            <a href="/#msg4" className="hover:text-neutral-950 transition-colors">{t("common.nav.alerts")}</a>
+            <Link href="/overview" className="hover:text-neutral-950 transition-colors">{t("common.nav.overview")}</Link>
             <Link href="/about" className="hover:text-neutral-950 transition-colors">{t("common.nav.ourStory")}</Link>
             <Link href="/careers" className="hover:text-neutral-950 transition-colors">{t("common.nav.careers")}</Link>
           </div>
@@ -109,7 +106,7 @@ export function Navbar({ variant = "default" }: NavbarProps) {
                 {t("common.nav.login")}
               </Button>
             </Link>
-            <Link href="/partners/login" className="hidden lg:block">
+            <Link href="/partners/join" className="hidden lg:block">
               <Button variant="outline" className="border-neutral-300 text-neutral-600 hover:bg-neutral-50 rounded-full h-9 px-4 text-xs">
                 {t("common.nav.distributorLogin")}
               </Button>
@@ -126,20 +123,13 @@ export function Navbar({ variant = "default" }: NavbarProps) {
       <MobileDrawer isOpen={isMobileMenuOpen} onClose={closeMobileMenu}>
         <div className="py-2">
           <MobileNavLink href="/" onClick={closeMobileMenu}>{t("common.nav.home")}</MobileNavLink>
+          <MobileNavLink href="/overview" onClick={closeMobileMenu}>{t("common.nav.overview")}</MobileNavLink>
           <MobileNavLink href="/about" onClick={closeMobileMenu}>{t("common.nav.ourStory")}</MobileNavLink>
           <MobileNavLink href="/careers" onClick={closeMobileMenu}>{t("common.nav.careers")}</MobileNavLink>
           <div className="border-t border-neutral-100 my-2" />
-          <div className="px-5 py-1 text-[10px] uppercase tracking-[0.15em] text-neutral-400 font-bold">
-            Ghost
-          </div>
-          <MobileNavLink href="/#msg1" onClick={closeMobileMenu}>{t("common.nav.navigation")}</MobileNavLink>
-          <MobileNavLink href="/#msg2" onClick={closeMobileMenu}>{t("common.nav.chat")}</MobileNavLink>
-          <MobileNavLink href="/#msg3" onClick={closeMobileMenu}>{t("common.nav.checks")}</MobileNavLink>
-          <MobileNavLink href="/#msg4" onClick={closeMobileMenu}>{t("common.nav.alerts")}</MobileNavLink>
-          <div className="border-t border-neutral-100 my-2" />
           <MobileNavLink href="/demo" onClick={closeMobileMenu}>{t("common.nav.bookDemo")}</MobileNavLink>
           <MobileNavLink href="/login" onClick={closeMobileMenu}>{t("common.nav.login")}</MobileNavLink>
-          <MobileNavLink href="/partners/login" onClick={closeMobileMenu}>{t("common.nav.distributorLogin")}</MobileNavLink>
+          <MobileNavLink href="/partners/join" onClick={closeMobileMenu}>{t("common.nav.distributorLogin")}</MobileNavLink>
         </div>
       </MobileDrawer>
     </>

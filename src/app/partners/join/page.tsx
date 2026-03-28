@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -64,11 +63,6 @@ export default function PartnersJoinPage() {
                     <ArrowLeft className="mr-2 w-4 h-4" />
                   </Button>
                 </a>
-                <Link href="/partners/login">
-                  <Button variant="outline" className="border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-full h-12 px-7 text-sm">
-                    {t("partners.join.hero.existingPartners")}
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
@@ -347,11 +341,6 @@ export default function PartnersJoinPage() {
                   <ArrowLeft className="mr-2 w-4 h-4" />
                 </Button>
               </a>
-              <Link href="/partners/login">
-                <Button variant="outline" className="border-neutral-300 text-neutral-600 hover:bg-neutral-50 rounded-full h-13 px-8 text-sm">
-                  {t("partners.join.cta.existingButton")}
-                </Button>
-              </Link>
             </div>
           </div>
         </section>

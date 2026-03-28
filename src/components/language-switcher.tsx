@@ -3,10 +3,10 @@
 import { useLanguage } from "@/lib/i18n";
 import type { Language } from "@/lib/i18n";
 
-const FLAGS: Record<Language, string> = {
-  he: "🇮🇱",
-  en: "🇺🇸",
-  ru: "🇷🇺",
+const LANG_LABELS: Record<Language, string> = {
+  he: "HE",
+  en: "EN",
+  ru: "RU",
 };
 
 const NEXT_LANG: Record<Language, Language> = {
@@ -26,10 +26,10 @@ export function LanguageSwitcher() {
   return (
     <button
       onClick={handleCycle}
-      className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-sm transition-colors cursor-pointer"
+      className="w-8 h-8 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-neutral-700 flex items-center justify-center text-[10px] font-mono text-neutral-400 hover:text-neutral-200 transition-colors cursor-pointer tracking-wider"
       title="Switch language"
     >
-      {FLAGS[language]}
+      {LANG_LABELS[language]}
     </button>
   );
 }

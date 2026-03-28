@@ -6,6 +6,8 @@ export const enCommon = {
     alerts: "Alerts",
     ourStory: "Our Story",
     careers: "Careers",
+    neweb: "Ghost Live",
+    overview: "Product Overview",
     distributorLogin: "Distributor Login",
     login: "Login",
     bookDemo: "Book a Demo",

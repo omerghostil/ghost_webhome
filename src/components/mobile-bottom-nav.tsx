@@ -82,7 +82,7 @@ export function MobileBottomNav({ onTryGhost }: MobileBottomNavProps) {
           <MoreNavLink href="/login" onClick={() => setIsMoreOpen(false)}>
             {t("common.nav.login")}
           </MoreNavLink>
-          <MoreNavLink href="/partners/login" onClick={() => setIsMoreOpen(false)}>
+          <MoreNavLink href="/partners/join" onClick={() => setIsMoreOpen(false)}>
             {t("common.nav.distributorLogin")}
           </MoreNavLink>
           <MoreNavLink href="/partners/join" onClick={() => setIsMoreOpen(false)}>

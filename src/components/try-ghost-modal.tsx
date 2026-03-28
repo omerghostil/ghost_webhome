@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, Download, Send, Video, RefreshCw } from "lucide-react";
+import { X, Download, Send, Video, RefreshCw, Lock } from "lucide-react";
 import {
   classifyIntent,
   createInitialState,
@@ -22,9 +22,10 @@ import {
   FULL_INTERVAL_MS,
 } from "@/lib/ghost-memory-engine";
 import { generateGhostPdf } from "@/lib/generate-ghost-pdf";
-import { readSafeJson } from "@/lib/safe-json-response";
+import { ghostLive, ghostMemory } from "@/lib/openai-client";
 
-const AUTO_REDIRECT_MESSAGE_COUNT = 8;
+const MESSAGE_LIMIT = 8;
+const INVITE_CODE = "1553";
 
 interface TryGhostModalProps {
   onClose: (redirectToAcademy?: boolean) => void;
@@ -43,7 +44,9 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
   const [sessionState, setSessionState] = useState<SessionState>(createInitialState);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [userMessageCount, setUserMessageCount] = useState(0);
-  const [showAutoRedirect, setShowAutoRedirect] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [showLimitReached, setShowLimitReached] = useState(false);
+  const [inviteInput, setInviteInput] = useState("");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -126,16 +129,8 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
       if (diff > CHANGE_THRESHOLD) {
         const lastDesc = memoryLogRef.current[memoryLogRef.current.length - 1]?.description ?? "";
         try {
-          const res = await fetch("/api/ghost-memory", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: result.dataUrl, mode: "quick", previousContext: lastDesc }),
-          });
-          if (res.ok) {
-            const { description } = await readSafeJson<{ description?: string }>(res);
-            if (!description) {
-              return;
-            }
+          const description = await ghostMemory(result.dataUrl, "quick", lastDesc);
+          if (description) {
             const entry: MemoryEntry = { timestamp: formatTimestamp(), type: "change_detected", description };
             memoryLogRef.current = [...memoryLogRef.current, entry];
             setMemoryLog((prev) => [...prev, entry]);
@@ -153,16 +148,8 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
     prevFrameRef.current = result.imageData;
 
     try {
-      const res = await fetch("/api/ghost-memory", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: result.dataUrl, mode: "full" }),
-      });
-      if (res.ok) {
-        const { description } = await readSafeJson<{ description?: string }>(res);
-        if (!description) {
-          return;
-        }
+      const description = await ghostMemory(result.dataUrl, "full");
+      if (description) {
         const entry: MemoryEntry = { timestamp: formatTimestamp(), type: "routine", description };
         memoryLogRef.current = [...memoryLogRef.current, entry];
         setMemoryLog((prev) => [...prev, entry]);
@@ -170,15 +157,32 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
     } catch { /* silent */ }
   }
 
+  const isLimitReached = !isUnlocked && userMessageCount >= MESSAGE_LIMIT;
+
+  function handleUnlock() {
+    if (inviteInput.trim() === INVITE_CODE) {
+      setIsUnlocked(true);
+      setShowLimitReached(false);
+    }
+  }
+
   async function handleSend() {
     const text = inputValue.trim();
     if (!text || isTyping) return;
+
+    if (isLimitReached) {
+      setShowLimitReached(true);
+      return;
+    }
 
     const newCount = userMessageCount + 1;
     setUserMessageCount(newCount);
     setInputValue("");
     setMessages((prev) => [...prev, { from: "user", text }]);
     setIsTyping(true);
+    // #region agent log
+    fetch('http://127.0.0.1:7501/ingest/bf49ea86-d86d-4148-9f47-054a761cc006',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1bc67f'},body:JSON.stringify({sessionId:'1bc67f',location:'try-ghost-modal.tsx:handleSend',message:'message sent',data:{newCount,MESSAGE_LIMIT,isUnlocked,isLimitReached,userMessageCount},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     try {
       const intent = classifyIntent(text);
@@ -190,17 +194,11 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
 
       const payload = buildPromptPayload(sessionState, intent, memoryLogRef.current, frame, text);
 
-      const res = await fetch("/api/ghost-live", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: payload }),
-      });
-
       let answer: string;
-      if (res.ok) {
-        const data = await readSafeJson<{ answer?: string }>(res);
-        answer = data.answer ?? "שגיאה בתקשורת עם Ghost Brain. נסה שוב.";
-      } else {
+      try {
+        answer = await ghostLive(payload);
+        if (!answer) answer = "שגיאה בתקשורת עם Ghost Brain. נסה שוב.";
+      } catch {
         answer = "שגיאה בתקשורת עם Ghost Brain. נסה שוב.";
       }
 
@@ -209,25 +207,17 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
       setSessionState(newState);
       setMessages((prev) => [...prev, { from: "ghost", text: answer }]);
 
-      if (newCount >= AUTO_REDIRECT_MESSAGE_COUNT) {
-        triggerAutoComplete();
+      if (!isUnlocked && newCount >= MESSAGE_LIMIT) {
+        // #region agent log
+        fetch('http://127.0.0.1:7501/ingest/bf49ea86-d86d-4148-9f47-054a761cc006',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1bc67f'},body:JSON.stringify({sessionId:'1bc67f',location:'try-ghost-modal.tsx:limitCheck',message:'LIMIT REACHED - showing overlay',data:{newCount,MESSAGE_LIMIT},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        setShowLimitReached(true);
       }
     } catch {
       setMessages((prev) => [...prev, { from: "ghost", text: "שגיאה בלתי צפויה. נסה שוב." }]);
     } finally {
       setIsTyping(false);
     }
-  }
-
-  function triggerAutoComplete() {
-    if (memoryLogRef.current.length > 0) {
-      downloadPdf();
-    }
-    setShowAutoRedirect(true);
-    setTimeout(() => {
-      stopEverything();
-      onClose(true);
-    }, 2500);
   }
 
   function handleClose() {
@@ -369,20 +359,30 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
 
           {/* Input */}
           <div className="px-4 py-3 border-t border-neutral-800 flex-shrink-0 safe-bottom">
+            {!isUnlocked && (
+              <div className="flex justify-between items-center mb-1.5 px-1">
+                <span className="text-[10px] text-neutral-600 font-mono">
+                  {userMessageCount}/{MESSAGE_LIMIT} הודעות
+                </span>
+                {isLimitReached && (
+                  <span className="text-[10px] text-amber-500/80">הזן קוד הזמנה להמשך</span>
+                )}
+              </div>
+            )}
             <div className="flex gap-2 items-center bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-1.5">
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="שאל את Ghost..."
+                placeholder={isLimitReached ? "הגבלת הודעות — הזן קוד הזמנה" : "שאל את Ghost..."}
                 className="flex-1 text-sm text-white placeholder:text-neutral-600 outline-none bg-transparent py-1.5"
                 dir="rtl"
-                disabled={!cameraReady}
+                disabled={!cameraReady || isLimitReached}
               />
               <button
                 onClick={handleSend}
-                disabled={!inputValue.trim() || isTyping || !cameraReady}
+                disabled={!inputValue.trim() || isTyping || !cameraReady || isLimitReached}
                 className="w-8 h-8 rounded-lg bg-white flex items-center justify-center hover:bg-neutral-200 transition-colors disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
               >
                 <Send className="w-3.5 h-3.5 text-neutral-950 rotate-180" />
@@ -392,16 +392,41 @@ export function TryGhostModal({ onClose }: TryGhostModalProps) {
         </div>
       </div>
 
-      {showAutoRedirect && (
+      {showLimitReached && !isUnlocked && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/80 backdrop-blur-md">
-          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-8 max-w-sm mx-4 text-center animate-fade-in">
+          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-8 max-w-sm mx-4 text-center">
             <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
-              <Download className="w-5 h-5 text-white animate-bounce" />
+              <Lock className="w-5 h-5 text-white" />
             </div>
-            <p className="text-white font-bold text-lg mb-2">הדו&quot;ח שלך מוכן</p>
-            <p className="text-neutral-400 text-sm">
-              ה-PDF הורד אוטומטית. עוברים לחוויית ההתנסות ביכולות Ghost...
+            <p className="text-white font-bold text-lg mb-2">הגעת למגבלת ההודעות</p>
+            <p className="text-neutral-400 text-sm mb-5">
+              הזן קוד הזמנה כדי לפתוח שימוש ללא הגבלה
             </p>
+            <div className="flex gap-2 items-center mb-4">
+              <input
+                type="text"
+                value={inviteInput}
+                onChange={(e) => setInviteInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
+                placeholder="קוד הזמנה"
+                className="flex-1 bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-3 text-sm text-white text-center placeholder:text-neutral-600 outline-none focus:border-neutral-500 transition-colors"
+                dir="ltr"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleUnlock}
+                className="flex-1 bg-white text-neutral-950 font-bold text-sm py-3 rounded-xl hover:bg-neutral-200 transition-colors"
+              >
+                פתח
+              </button>
+              <button
+                onClick={() => { stopEverything(); onClose(true); }}
+                className="flex-1 bg-neutral-800 text-neutral-400 font-bold text-sm py-3 rounded-xl hover:bg-neutral-700 transition-colors"
+              >
+                סגור
+              </button>
+            </div>
           </div>
         </div>
       )}

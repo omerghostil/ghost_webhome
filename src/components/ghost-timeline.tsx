@@ -14,7 +14,7 @@ export function GhostTimeline() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const { tArray } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   const stageData = tArray<{ label: string; title: string; example: string }>("components.ghostTimeline.stages");
 
@@ -72,6 +72,15 @@ export function GhostTimeline() {
 
   return (
     <div ref={containerRef} className="mt-16">
+      <div className="text-center max-w-3xl mx-auto mb-10">
+        <h3 className="text-2xl lg:text-3xl font-bold tracking-tight mb-4">
+          {t("components.ghostTimeline.introTitle")}
+        </h3>
+        <p className="text-neutral-500 leading-relaxed">
+          {t("components.ghostTimeline.introDescription")}
+        </p>
+      </div>
+
       {/* Stage Selector */}
       <div className="flex items-center justify-center gap-0 mb-10">
         {stages.map((stage, i) => {
@@ -146,7 +155,7 @@ export function GhostTimeline() {
             className="animate-fade-in-up"
             style={{ animationDelay: "100ms" }}
           >
-            <p className="text-neutral-500 leading-relaxed text-[15px]">
+            <p className="text-neutral-500 leading-relaxed text-[15px] whitespace-pre-line">
               {activeStage.example}
             </p>
           </div>
@@ -175,6 +184,10 @@ export function GhostTimeline() {
           </div>
         </div>
       </div>
+
+      <p className="text-center text-neutral-600 leading-relaxed max-w-3xl mx-auto mt-8">
+        {t("components.ghostTimeline.outro")}
+      </p>
     </div>
   );
 }
